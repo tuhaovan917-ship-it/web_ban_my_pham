@@ -9,6 +9,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
+
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -18,15 +20,29 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/products", "/product/**", "/login", "/register", "/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
-                .requestMatchers("/home").hasAnyRole("CUSTOMER", "ADMIN")
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/cart/**", "/checkout/**", "/orders/**", "/reviews/**").hasAnyRole("CUSTOMER", "ADMIN")
+                .requestMatchers(
+                    pathPattern("/"),
+                    pathPattern("/products"),
+                    pathPattern("/product/**"),
+                    pathPattern("/login"),
+                    pathPattern("/css/**"),
+                    pathPattern("/js/**"),
+                    pathPattern("/images/**"),
+                    pathPattern("/uploads/**")
+                ).permitAll()
+                .requestMatchers(pathPattern("/home")).hasAnyRole("CUSTOMER", "ADMIN")
+                .requestMatchers(pathPattern("/admin/**")).hasRole("ADMIN")
+                .requestMatchers(
+                    pathPattern("/cart/**"),
+                    pathPattern("/checkout/**"),
+                    pathPattern("/orders/**"),
+                    pathPattern("/reviews/**")
+                ).hasAnyRole("CUSTOMER", "ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .loginProcessingUrl("/login")
+                .loginProcessingUrl("/dang-nhap")
                 .successHandler(roleBasedLoginSuccessHandler)
                 .failureUrl("/login?error")
                 .permitAll()

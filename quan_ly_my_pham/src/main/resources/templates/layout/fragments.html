@@ -49,7 +49,7 @@
             <!-- Guest Links -->
             <th:block th:if="${currentUser == null}">
                 <a th:href="@{/login}" class="btn btn-secondary">Đăng nhập</a>
-                <a th:href="@{/register}" class="btn btn-primary">Đăng ký</a>
+                <a href="/login?register" th:href="@{/login(register=true)}" class="btn btn-primary">Đăng ký</a>
             </th:block>
             
             <!-- Logged-in Links -->

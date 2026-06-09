@@ -9,6 +9,12 @@
         <h2 style="text-align:center;margin-bottom:10px;font-weight:800;color:var(--primary-dark);">Đăng ký tài khoản</h2>
         <p class="muted-text" style="text-align:center;margin-bottom:24px;">Tạo tài khoản khách hàng để mua hàng và theo dõi đơn.</p>
 
+        <div class="alert alert-success" th:if="${registerSuccess}">
+            <i class="fa-solid fa-circle-check"></i>
+            <span th:text="${registerSuccess}"></span>
+            <a th:href="@{/login(username=${registeredUserName})}" class="btn btn-outline" style="margin-left:auto;">Đăng nhập</a>
+        </div>
+
         <div class="alert alert-error" th:if="${registerError}">
             <i class="fa-solid fa-circle-exclamation"></i>
             <span th:text="${registerError}"></span>
@@ -19,7 +25,8 @@
             <span th:each="err : ${#fields.globalErrors()}" th:text="${err}"></span>
         </div>
 
-        <form th:action="@{/register}" th:object="${registerRequest}" method="post" class="admin-form">
+        <form action="/login" th:action="@{/login}" th:object="${registerRequest}" method="post" class="admin-form">
+            <input type="hidden" name="register" value="true">
             <div class="form-group">
                 <label for="userName">Tên đăng nhập</label>
                 <input id="userName" th:field="*{userName}" type="text" class="form-control"
