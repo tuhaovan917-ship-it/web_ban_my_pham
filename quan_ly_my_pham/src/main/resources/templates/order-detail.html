@@ -10,7 +10,7 @@
     <div style="margin-bottom: 20px; font-size: 0.9rem;">
         <a th:href="@{/}">Trang chủ</a> &gt; 
         <a th:href="@{/orders}">Đơn hàng</a> &gt; 
-        <span th:text="'Chi tiết đơn hàng #' + ${order.id}" style="color: var(--text-muted);">Mã đơn hàng</span>
+        <span th:text="'Chi tiết đơn hàng ' + ${order.id}" style="color: var(--text-muted);">Mã đơn hàng</span>
     </div>
 
     <!-- Alert Messages -->
@@ -34,21 +34,11 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px;">
                     <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--dark); margin: 0;">
                         <i class="fa-solid fa-receipt" style="color: var(--primary); margin-right: 8px;"></i>
-                        <span th:text="'Đơn hàng #' + ${order.id}"></span>
+                        <span th:text="'Đơn hàng ' + ${order.id}"></span>
                     </h2>
                     
                     <!-- Badge trạng thái đơn hàng -->
-                    <span class="badge" th:classappend="${
-                        order.status == 'PENDING_CONFIRMATION' ? 'badge-pending' : (
-                        order.status == 'CONFIRMED' ? 'badge-confirmed' : (
-                        order.status == 'SHIPPING' ? 'badge-shipping' : (
-                        order.status == 'COMPLETED' ? 'badge-completed' : 'badge-cancelled')))
-                    }" th:text="${
-                        order.status == 'PENDING_CONFIRMATION' ? 'Chờ xác nhận' : (
-                        order.status == 'CONFIRMED' ? 'Đã xác nhận' : (
-                        order.status == 'SHIPPING' ? 'Đang giao hàng' : (
-                        order.status == 'COMPLETED' ? 'Đã hoàn thành' : 'Đã hủy')))
-                    }">Trạng thái</span>
+                    <span class="badge" th:classappend="${order.status.badgeClass}" th:text="${order.status.displayName}">Trạng thái</span>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.95rem;">
@@ -59,7 +49,7 @@
                     </div>
                     <div>
                         <p style="margin-bottom: 8px;"><strong style="color: var(--text-muted);">Địa chỉ giao:</strong> <span th:text="${order.shippingAddress}"></span></p>
-                        <p style="margin-bottom: 8px;"><strong style="color: var(--text-muted);">Phương thức TT:</strong> <span th:text="${order.paymentMethod}"></span></p>
+                        <p style="margin-bottom: 8px;"><strong style="color: var(--text-muted);">Phương thức TT:</strong> <span th:text="${order.paymentMethod.displayName}"></span></p>
                         <p th:if="${order.note != null && !order.note.isBlank()}" style="margin-bottom: 8px;">
                             <strong style="color: var(--text-muted);">Ghi chú:</strong> <span th:text="${order.note}"></span>
                         </p>

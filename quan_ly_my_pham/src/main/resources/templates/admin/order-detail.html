@@ -4,11 +4,9 @@
 <body>
 
 <div class="admin-layout">
-    <!-- Sidebar dùng chung (activePage = 'orders') -->
     <aside th:replace="~{layout/fragments :: admin_sidebar('orders')}"></aside>
-    
+
     <div class="admin-main">
-        <!-- Top navbar của admin -->
         <header class="admin-navbar">
             <span style="font-weight: 700; color: var(--text-main); font-size: 1.1rem;">
                 <i class="fa-solid fa-truck-ramp-box" style="color: var(--primary); margin-right: 8px;"></i>CHI TIẾT ĐƠN HÀNG
@@ -17,17 +15,14 @@
                 GlowCosmetics &bull; Admin Panel
             </div>
         </header>
-        
-        <!-- Content chính -->
+
         <main class="admin-container">
-            
             <div style="margin-bottom: 20px;">
                 <a th:href="@{/admin/orders}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;">
                     <i class="fa-solid fa-arrow-left"></i> Quay lại danh sách đơn hàng
                 </a>
             </div>
 
-            <!-- Alert Messages -->
             <div class="alert alert-success" th:if="${successMessage}">
                 <i class="fa-solid fa-circle-check"></i>
                 <span th:text="${successMessage}"></span>
@@ -37,35 +32,19 @@
                 <span th:text="${errorMessage}"></span>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start;">
-                
-                <!-- Cột trái: Thông tin đơn hàng & Danh sách sản phẩm mua -->
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start;">
                 <div style="display: flex; flex-direction: column; gap: 24px;">
-                    
-                    <!-- Card 1: Thông tin giao hàng -->
                     <section class="admin-card" style="margin: 0; padding: 20px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px;">
-                            <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--dark); margin: 0;" th:text="'Đơn hàng #' + ${order.id}">Đơn hàng</h2>
-                            
-                            <!-- Trạng thái Badge -->
-                            <span class="badge" th:classappend="${
-                                order.status == 'PENDING_CONFIRMATION' ? 'badge-pending' : (
-                                order.status == 'CONFIRMED' ? 'badge-confirmed' : (
-                                order.status == 'SHIPPING' ? 'badge-shipping' : (
-                                order.status == 'COMPLETED' ? 'badge-completed' : 'badge-cancelled')))
-                            }" th:text="${
-                                order.status == 'PENDING_CONFIRMATION' ? 'Chờ xác nhận' : (
-                                order.status == 'CONFIRMED' ? 'Đã xác nhận' : (
-                                order.status == 'SHIPPING' ? 'Đang giao' : (
-                                order.status == 'COMPLETED' ? 'Hoàn thành' : 'Đã hủy')))
-                            }"></span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px;">
+                            <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--dark); margin: 0;" th:text="'Đơn hàng ' + ${order.id}">Đơn hàng</h2>
+                            <span class="badge" th:classappend="${order.status.badgeClass}" th:text="${order.status.displayName}">Trạng thái</span>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.9rem; line-height: 1.6;">
                             <div>
                                 <p style="margin-bottom: 6px;"><strong style="color: var(--text-muted);">Khách hàng:</strong> <span th:text="${order.user.fullName} + ' (' + ${order.user.userName} + ')'"></span></p>
                                 <p style="margin-bottom: 6px;"><strong style="color: var(--text-muted);">Ngày đặt:</strong> <span th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></span></p>
-                                <p style="margin-bottom: 6px;"><strong style="color: var(--text-muted);">Phương thức TT:</strong> <span th:text="${order.paymentMethod}"></span></p>
+                                <p style="margin-bottom: 6px;"><strong style="color: var(--text-muted);">Phương thức TT:</strong> <span th:text="${order.paymentMethod.displayName}"></span></p>
                             </div>
                             <div>
                                 <p style="margin-bottom: 6px;"><strong style="color: var(--text-muted);">Người nhận:</strong> <span th:text="${order.receiverName}"></span></p>
@@ -78,12 +57,11 @@
                         </div>
                     </section>
 
-                    <!-- Card 2: Danh sách sản phẩm mua -->
                     <section class="admin-card" style="margin: 0; padding: 20px;">
                         <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--dark); margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
                             Sản phẩm mua
                         </h3>
-                        
+
                         <div class="table-responsive">
                             <table class="table-custom" style="font-size: 0.9rem;">
                                 <thead>
@@ -109,15 +87,12 @@
                     </section>
                 </div>
 
-                <!-- Cột phải: Cập nhật trạng thái & Tổng kết hóa đơn -->
                 <div style="display: flex; flex-direction: column; gap: 24px;">
-                    
-                    <!-- Card 3: Cập nhật trạng thái đơn hàng -->
                     <section class="admin-card" style="margin: 0; padding: 20px;">
                         <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--dark); margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
                             Cập nhật trạng thái
                         </h3>
-                        
+
                         <form th:action="@{/admin/orders/{id}/status(id=${order.id})}" method="post" style="display: flex; flex-direction: column; gap: 12px;">
                             <div class="form-group">
                                 <label for="status" style="font-weight: 600; font-size: 0.85rem;">Trạng thái mới:</label>
@@ -125,33 +100,27 @@
                                     <option th:each="status : ${statuses}"
                                             th:value="${status}"
                                             th:selected="${status == order.status}"
-                                            th:text="${
-                                                status == 'PENDING_CONFIRMATION' ? 'Chờ xác nhận' : (
-                                                status == 'CONFIRMED' ? 'Đã xác nhận' : (
-                                                status == 'SHIPPING' ? 'Đang giao hàng' : (
-                                                status == 'COMPLETED' ? 'Đã hoàn thành' : 'Đã hủy')))
-                                            }">
+                                            th:text="${status.displayName}">
                                     </option>
                                 </select>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="note" style="font-weight: 600; font-size: 0.85rem;">Ghi chú cập nhật:</label>
                                 <input id="note" class="form-control" type="text" name="note" placeholder="Ví dụ: Đã giao cho shipper..." style="font-size: 0.85rem;">
                             </div>
-                            
+
                             <button type="submit" class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 0.9rem; margin-top: 6px;">
                                 <i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi
                             </button>
                         </form>
                     </section>
 
-                    <!-- Card 4: Tổng chi tiết tiền nong -->
                     <section class="admin-card" style="margin: 0; padding: 20px;">
                         <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--dark); margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
                             Hóa đơn thanh toán
                         </h3>
-                        
+
                         <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem;">
                             <div class="summary-row" style="display: flex; justify-content: space-between;">
                                 <span style="color: var(--text-muted);">Tạm tính:</span>
@@ -165,7 +134,7 @@
                                 <span style="color: var(--text-muted);">Phí giao hàng:</span>
                                 <strong th:text="${#numbers.formatDecimal(order.shippingFee, 0, 'COMMA', 0, 'POINT')} + ' đ'"></strong>
                             </div>
-                            
+
                             <div class="summary-row" style="display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 6px; font-size: 1.05rem; color: var(--primary-dark);">
                                 <span>Tổng cộng:</span>
                                 <strong th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'" style="font-size: 1.2rem; font-weight: 800;"></strong>
@@ -173,7 +142,6 @@
                         </div>
                     </section>
                 </div>
-                
             </div>
         </main>
     </div>

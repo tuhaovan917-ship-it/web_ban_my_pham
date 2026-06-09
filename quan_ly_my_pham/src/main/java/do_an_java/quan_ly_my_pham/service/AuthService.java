@@ -30,10 +30,17 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setFullName(request.fullName().trim());
         user.setEmail(request.email().trim());
-        user.setPhone(request.phone());
-        user.setAddress(request.address());
+        user.setPhone(normalizeOptionalText(request.phone()));
+        user.setAddress(normalizeOptionalText(request.address()));
         user.setRole(UserRole.CUSTOMER);
         user.setActive(true);
         return userRepository.save(user);
+    }
+
+    private String normalizeOptionalText(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
     }
 }
