@@ -5,15 +5,19 @@ import do_an_java.quan_ly_my_pham.exception.NotFoundException;
 import do_an_java.quan_ly_my_pham.model.Brand;
 import do_an_java.quan_ly_my_pham.model.Category;
 import do_an_java.quan_ly_my_pham.model.Product;
+import do_an_java.quan_ly_my_pham.model.ProductImage;
 import do_an_java.quan_ly_my_pham.repository.BrandRepository;
 import do_an_java.quan_ly_my_pham.repository.CartItemRepository;
 import do_an_java.quan_ly_my_pham.repository.CategoryRepository;
 import do_an_java.quan_ly_my_pham.repository.OrderDetailRepository;
+import do_an_java.quan_ly_my_pham.repository.ProductImageRepository;
 import do_an_java.quan_ly_my_pham.repository.ProductRepository;
 import do_an_java.quan_ly_my_pham.repository.ReviewRepository;
 import do_an_java.quan_ly_my_pham.service.dto.ProductFilter;
 import do_an_java.quan_ly_my_pham.service.dto.ProductForm;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -28,34 +32,29 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.Normalizer;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
     private static final int LOW_STOCK_THRESHOLD = 5;
-    private static final Path PRODUCT_IMAGE_DIRECTORY = Paths.get(
-        "src",
-        "main",
-        "resources",
-        "static",
-        "uploads",
-        "products"
-    );
+    private static final Path PRODUCT_IMAGE_DIRECTORY = Paths.get("uploads", "products");
+    private static final DateTimeFormatter IMAGE_TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
     private final CartItemRepository cartItemRepository;
     private final OrderDetailRepository orderDetailRepository;
+    private final ProductImageRepository productImageRepository;
     private final ReviewRepository reviewRepository;
 
     public List<Product> findAllActive() {
-        return productRepository.findByActiveTrue();
+        return productRepository.findVisibleProducts();
     }
 
     public List<Product> findAllForAdmin() {
@@ -68,11 +67,19 @@ public class ProductService {
     }
 
     public List<Product> findNewestProducts() {
-        return productRepository.findTop8ByActiveTrueOrderByCreatedAtDesc();
+        return productRepository.findVisibleOrderByCreatedAtDesc()
+            .stream()
+            .limit(8)
+            .toList();
     }
 
     public List<Product> findFeaturedProducts() {
-        return productRepository.findByFeaturedTrueAndActiveTrue();
+        return productRepository.findVisibleFeaturedProducts();
+    }
+
+    public Product findVisibleById(Integer productId) {
+        return productRepository.findVisibleById(productId)
+            .orElseThrow(() -> new NotFoundException("Khong tim thay san pham"));
     }
 
     public List<Product> findLowStockProducts() {
@@ -98,8 +105,9 @@ public class ProductService {
         Product product = new Product();
         product.setCreatedAt(LocalDateTime.now());
         applyProductForm(product, form);
-        updateMainImage(product, imageFile);
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+        updateMainImage(savedProduct, imageFile);
+        return productRepository.save(savedProduct);
     }
 
     @Transactional
@@ -191,19 +199,40 @@ public class ProductService {
         String originalFilename = imageFile.getOriginalFilename();
         String extension = extractImageExtension(originalFilename);
         String safeName = toSafeFileName(product.getName());
-        String fileName = safeName + "-" + UUID.randomUUID() + extension;
+        String timestamp = LocalDateTime.now().format(IMAGE_TIMESTAMP_FORMATTER);
+        String fileName = product.getId() + "-" + safeName + "-" + timestamp + extension;
 
         try {
             Files.createDirectories(PRODUCT_IMAGE_DIRECTORY);
-            Path target = PRODUCT_IMAGE_DIRECTORY.resolve(fileName).normalize();
-            if (!target.startsWith(PRODUCT_IMAGE_DIRECTORY)) {
+            Path uploadDirectory = PRODUCT_IMAGE_DIRECTORY.toAbsolutePath().normalize();
+            Path target = uploadDirectory.resolve(fileName).normalize();
+            if (!target.startsWith(uploadDirectory)) {
                 throw new BusinessException("Ten file anh khong hop le");
             }
             Files.copy(imageFile.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
-            product.setMainImagePath("/uploads/products/" + fileName);
+            String imagePath = "/uploads/products/" + fileName;
+            product.setMainImagePath(imagePath);
+            syncMainProductImage(product, imagePath);
         } catch (IOException ex) {
             throw new BusinessException("Khong the luu anh san pham");
         }
+    }
+
+    private void syncMainProductImage(Product product, String imagePath) {
+        List<ProductImage> images = productImageRepository.findByProductIdOrderByDisplayOrderAsc(product.getId());
+        images.forEach(image -> image.setMain(false));
+        productImageRepository.saveAll(images);
+
+        ProductImage mainImage = images.stream()
+            .filter(image -> imagePath.equals(image.getImagePath()))
+            .findFirst()
+            .orElseGet(ProductImage::new);
+
+        mainImage.setProduct(product);
+        mainImage.setImagePath(imagePath);
+        mainImage.setDisplayOrder(1);
+        mainImage.setMain(true);
+        productImageRepository.save(mainImage);
     }
 
     private String extractImageExtension(String fileName) {
@@ -231,6 +260,13 @@ public class ProductService {
         return (root, query, builder) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(builder.isTrue(root.get("active")));
+            predicates.add(builder.isTrue(root.get("category").get("active")));
+
+            Join<Object, Object> brandJoin = root.join("brand", JoinType.LEFT);
+            predicates.add(builder.or(
+                builder.isNull(root.get("brand")),
+                builder.isTrue(brandJoin.get("active"))
+            ));
 
             if (filter.keyword() != null && !filter.keyword().isBlank()) {
                 predicates.add(builder.like(
