@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quan ly danh gia</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f6f7f9; color: #222; }
+        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        main { max-width: 1240px; margin: 24px auto; padding: 0 16px; }
+        section { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 16px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        select, button { padding: 8px 10px; }
+        form { display: inline; }
+        .filter-form { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
+        .message { padding: 10px; margin-bottom: 12px; border: 1px solid #b6d7b6; background: #eef6ee; }
+        .error { border-color: #e6b5b5; background: #fdecec; }
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        a { color: #0066cc; text-decoration: none; }
+    </style>
+</head>
+<body>
+<header>
+    <strong>Admin - Danh gia</strong>
+    <nav>
+        <a th:href="@{/admin}">Dashboard</a>
+        <span> | </span>
+        <a th:href="@{/admin/products}">San pham</a>
+        <span> | </span>
+        <a th:href="@{/admin/users}">Nguoi dung</a>
+    </nav>
+</header>
+
+<main>
+    <div class="message" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="message error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <section>
+        <h1>Quan ly danh gia</h1>
+        <form class="filter-form" th:action="@{/admin/reviews}" method="get">
+            <label for="status">Trang thai</label>
+            <select id="status" name="status">
+                <option value="">Tat ca</option>
+                <option th:each="status : ${statuses}"
+                        th:value="${status}"
+                        th:selected="${status == selectedStatus}"
+                        th:text="${status}">
+                </option>
+            </select>
+            <button type="submit">Loc</button>
+        </form>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Ma</th>
+                <th>San pham</th>
+                <th>Khach hang</th>
+                <th>Sao</th>
+                <th>Noi dung</th>
+                <th>Don hang</th>
+                <th>Ngay tao</th>
+                <th>Trang thai</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="review : ${reviews}">
+                <td th:text="${review.id}"></td>
+                <td>
+                    <a th:href="@{/product/{id}(id=${review.product.id})}" th:text="${review.product.name}"></a>
+                </td>
+                <td>
+                    <div th:text="${review.user.fullName}"></div>
+                    <small th:text="${review.user.userName}"></small>
+                </td>
+                <td th:text="${review.stars}"></td>
+                <td th:text="${review.comment != null ? review.comment : ''}"></td>
+                <td>
+                    <a th:if="${review.order != null}" th:href="@{/admin/orders/{id}(id=${review.order.id})}"
+                       th:text="'#' + ${review.order.id}"></a>
+                    <span th:if="${review.order == null}">Khong co</span>
+                </td>
+                <td th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${review.status}"></td>
+                <td>
+                    <div class="actions">
+                        <form th:if="${review.status.name() != 'APPROVED'}"
+                              th:action="@{/admin/reviews/{id}/status(id=${review.id})}" method="post">
+                            <input type="hidden" name="status" value="APPROVED">
+                            <button type="submit">Duyet</button>
+                        </form>
+                        <form th:if="${review.status.name() != 'REJECTED'}"
+                              th:action="@{/admin/reviews/{id}/status(id=${review.id})}" method="post">
+                            <input type="hidden" name="status" value="REJECTED">
+                            <button type="submit">Tu choi</button>
+                        </form>
+                        <form th:if="${review.status.name() != 'PENDING'}"
+                              th:action="@{/admin/reviews/{id}/status(id=${review.id})}" method="post">
+                            <input type="hidden" name="status" value="PENDING">
+                            <button type="submit">Cho duyet</button>
+                        </form>
+                        <form th:action="@{/admin/reviews/{id}/delete(id=${review.id})}" method="post"
+                              onsubmit="return confirm('Ban chac chan muon xoa danh gia nay?');">
+                            <button type="submit">Xoa</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(reviews)}">
+                <td colspan="9">Chua co danh gia phu hop.</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

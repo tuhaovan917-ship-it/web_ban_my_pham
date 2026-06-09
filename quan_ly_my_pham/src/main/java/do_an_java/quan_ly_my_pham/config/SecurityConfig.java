@@ -1,5 +1,7 @@
 package do_an_java.quan_ly_my_pham.config;
 
+import do_an_java.quan_ly_my_pham.security.RoleBasedLoginSuccessHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -8,7 +10,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+    private final RoleBasedLoginSuccessHandler roleBasedLoginSuccessHandler;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -21,7 +26,7 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/products", true)
+                .successHandler(roleBasedLoginSuccessHandler)
                 .failureUrl("/login?error")
                 .permitAll()
             )

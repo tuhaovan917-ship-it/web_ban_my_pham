@@ -24,6 +24,13 @@ public class ProductController {
         return "redirect:/products";
     }
 
+    @GetMapping("/home")
+    public String userHome(Model model) {
+        model.addAttribute("newestProducts", productService.findNewestProducts());
+        model.addAttribute("featuredProducts", productService.findFeaturedProducts());
+        return "home";
+    }
+
     @GetMapping("/products")
     public String listProducts(
         @RequestParam(required = false) String keyword,

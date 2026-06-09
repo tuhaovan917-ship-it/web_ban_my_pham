@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quan ly nguoi dung</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f6f7f9; color: #222; }
+        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        main { max-width: 1180px; margin: 24px auto; padding: 0 16px; }
+        section { background: #fff; border: 1px solid #ddd; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        button { padding: 8px 10px; cursor: pointer; border: 1px solid #777; background: #fff; color: #222; }
+        .message { padding: 10px; margin-bottom: 12px; border: 1px solid #b6d7b6; background: #eef6ee; }
+        .error { border-color: #e6b5b5; background: #fdecec; }
+        a { color: #0066cc; text-decoration: none; }
+    </style>
+</head>
+<body>
+<header>
+    <strong>Admin - Nguoi dung</strong>
+    <nav>
+        <a th:href="@{/admin}">Dashboard</a>
+        <span> | </span>
+        <a th:href="@{/admin/orders}">Don hang</a>
+        <span> | </span>
+        <a th:href="@{/admin/products}">San pham</a>
+    </nav>
+</header>
+
+<main>
+    <div class="message" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="message error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <section>
+        <h1>Quan ly nguoi dung</h1>
+        <table>
+            <thead>
+            <tr>
+                <th>Ten dang nhap</th>
+                <th>Ho ten</th>
+                <th>Email</th>
+                <th>So dien thoai</th>
+                <th>Vai tro</th>
+                <th>Trang thai</th>
+                <th>Ngay tao</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.userName}"></td>
+                <td th:text="${user.fullName}"></td>
+                <td th:text="${user.email}"></td>
+                <td th:text="${user.phone != null ? user.phone : ''}"></td>
+                <td th:text="${user.role}"></td>
+                <td th:text="${user.active ? 'Dang hoat dong' : 'Bi khoa'}"></td>
+                <td th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                <td>
+                    <form th:if="${user.active && user.id != currentUserId && user.role.name() != 'ADMIN'}"
+                          th:action="@{/admin/users/{id}/lock(id=${user.id})}"
+                          method="post"
+                          onsubmit="return confirm('Ban chac chan muon khoa tai khoan nay?');">
+                        <button type="submit">Khoa</button>
+                    </form>
+                    <form th:if="${!user.active}"
+                          th:action="@{/admin/users/{id}/unlock(id=${user.id})}"
+                          method="post">
+                        <button type="submit">Mo khoa</button>
+                    </form>
+                    <span th:if="${user.id == currentUserId}">Tai khoan hien tai</span>
+                    <span th:if="${user.role.name() == 'ADMIN' && user.id != currentUserId}">Quan tri vien</span>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(users)}">
+                <td colspan="8">Chua co nguoi dung.</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang chu khach hang</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
+        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        main { max-width: 1120px; margin: 24px auto; padding: 0 16px; }
+        .nav { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .nav a, .nav button, .actions a { padding: 9px 12px; border: 1px solid #777; background: #fff; color: #222; text-decoration: none; cursor: pointer; }
+        .nav form { display: inline; margin: 0; }
+        .hero, section { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 16px; }
+        .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
+        .product { border: 1px solid #ddd; padding: 12px; background: #fafafa; }
+        .image { width: 100%; aspect-ratio: 1; object-fit: cover; background: #eee; }
+        .price { color: #b00020; font-weight: 700; }
+        a { color: #0066cc; text-decoration: none; }
+    </style>
+</head>
+<body>
+<header>
+    <strong>Quan Ly My Pham</strong>
+    <nav class="nav">
+        <a th:href="@{/home}">Trang chu</a>
+        <a th:href="@{/products}">San pham</a>
+        <a th:href="@{/cart}">Gio hang</a>
+        <a th:href="@{/orders}">Don hang</a>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Dang xuat</button>
+        </form>
+    </nav>
+</header>
+
+<main>
+    <section class="hero">
+        <h1>Trang chu khach hang</h1>
+        <p>Chon san pham, quan ly gio hang va theo doi don hang cua ban.</p>
+        <div class="actions">
+            <a th:href="@{/products}">Mua sam ngay</a>
+            <a th:href="@{/cart}">Xem gio hang</a>
+            <a th:href="@{/orders}">Lich su don hang</a>
+        </div>
+    </section>
+
+    <section>
+        <h2>San pham noi bat</h2>
+        <p th:if="${#lists.isEmpty(featuredProducts)}">Chua co san pham noi bat.</p>
+        <div class="grid" th:if="${!#lists.isEmpty(featuredProducts)}">
+            <article class="product" th:each="product : ${featuredProducts}">
+                <img class="image" th:if="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" th:src="@{${product.mainImagePath}}" alt="">
+                <div class="image" th:unless="${product.mainImagePath != null && !product.mainImagePath.isBlank()}"></div>
+                <h3><a th:href="@{/product/{id}(id=${product.id})}" th:text="${product.name}"></a></h3>
+                <p class="price" th:text="${#numbers.formatDecimal(product.salePrice != null ? product.salePrice : product.price, 0, 'COMMA', 0, 'POINT')} + ' VND'"></p>
+            </article>
+        </div>
+    </section>
+
+    <section>
+        <h2>San pham moi</h2>
+        <p th:if="${#lists.isEmpty(newestProducts)}">Chua co san pham moi.</p>
+        <div class="grid" th:if="${!#lists.isEmpty(newestProducts)}">
+            <article class="product" th:each="product : ${newestProducts}">
+                <img class="image" th:if="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" th:src="@{${product.mainImagePath}}" alt="">
+                <div class="image" th:unless="${product.mainImagePath != null && !product.mainImagePath.isBlank()}"></div>
+                <h3><a th:href="@{/product/{id}(id=${product.id})}" th:text="${product.name}"></a></h3>
+                <p class="price" th:text="${#numbers.formatDecimal(product.salePrice != null ? product.salePrice : product.price, 0, 'COMMA', 0, 'POINT')} + ' VND'"></p>
+            </article>
+        </div>
+    </section>
+</main>
+</body>
+</html>

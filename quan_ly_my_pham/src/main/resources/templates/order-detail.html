@@ -10,7 +10,9 @@
         section { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 16px; }
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        button { padding: 9px 14px; cursor: pointer; }
+        input, select, textarea, button { padding: 9px; }
+        button { cursor: pointer; }
+        textarea { width: 100%; box-sizing: border-box; min-height: 70px; resize: vertical; margin-top: 8px; }
         .message { padding: 10px; margin-bottom: 12px; border: 1px solid #b6d7b6; background: #eef6ee; }
         .error { border-color: #e6b5b5; background: #fdecec; }
         .summary-row { display: flex; justify-content: space-between; margin: 8px 0; }
@@ -54,14 +56,34 @@
                 <th>Don gia</th>
                 <th>So luong</th>
                 <th>Thanh tien</th>
+                <th th:if="${canReview}">Danh gia</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="detail : ${order.orderDetails}">
-                <td th:text="${detail.productName}"></td>
+                <td>
+                    <a th:href="@{/product/{id}(id=${detail.product.id})}" th:text="${detail.productName}"></a>
+                </td>
                 <td th:text="${#numbers.formatDecimal(detail.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
                 <td th:text="${detail.quantity}"></td>
                 <td th:text="${#numbers.formatDecimal(detail.lineTotal, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+                <td th:if="${canReview}">
+                    <div th:if="${reviewedProductIds.contains(detail.product.id)}">Da gui danh gia</div>
+                    <form th:unless="${reviewedProductIds.contains(detail.product.id)}"
+                          th:action="@{/orders/{id}/reviews(id=${order.id})}"
+                          method="post">
+                        <input type="hidden" name="productId" th:value="${detail.product.id}">
+                        <select name="stars" required>
+                            <option value="5">5 sao</option>
+                            <option value="4">4 sao</option>
+                            <option value="3">3 sao</option>
+                            <option value="2">2 sao</option>
+                            <option value="1">1 sao</option>
+                        </select>
+                        <textarea name="comment" maxlength="500" placeholder="Nhan xet cua ban"></textarea>
+                        <button type="submit">Gui danh gia</button>
+                    </form>
+                </td>
             </tr>
             </tbody>
         </table>

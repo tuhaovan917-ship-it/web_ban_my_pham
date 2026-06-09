@@ -1,16 +1,20 @@
 package do_an_java.quan_ly_my_pham.service;
 
 import do_an_java.quan_ly_my_pham.exception.BusinessException;
+import do_an_java.quan_ly_my_pham.exception.NotFoundException;
 import do_an_java.quan_ly_my_pham.model.DiscountType;
 import do_an_java.quan_ly_my_pham.model.Promotion;
 import do_an_java.quan_ly_my_pham.repository.PromotionRepository;
 import do_an_java.quan_ly_my_pham.service.dto.PromotionDiscount;
+import do_an_java.quan_ly_my_pham.service.dto.PromotionForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +22,15 @@ public class PromotionService {
     private static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
 
     private final PromotionRepository promotionRepository;
+
+    public List<Promotion> findAllForAdmin() {
+        return promotionRepository.findAllByOrderByStartDateDesc();
+    }
+
+    public Promotion findById(Integer promotionId) {
+        return promotionRepository.findById(promotionId)
+            .orElseThrow(() -> new NotFoundException("Khong tim thay khuyen mai"));
+    }
 
     public PromotionDiscount calculateDiscount(String code, BigDecimal subtotal) {
         if (code == null || code.isBlank()) {
@@ -39,6 +52,99 @@ public class PromotionService {
 
         promotion.setUsedCount(promotion.getUsedCount() + 1);
         promotionRepository.save(promotion);
+    }
+
+    @Transactional
+    public Promotion createPromotion(PromotionForm form) {
+        validatePromotionForm(form, null);
+
+        Promotion promotion = new Promotion();
+        promotion.setUsedCount(0);
+        applyPromotionForm(promotion, form);
+        return promotionRepository.save(promotion);
+    }
+
+    @Transactional
+    public Promotion updatePromotion(Integer promotionId, PromotionForm form) {
+        validatePromotionForm(form, promotionId);
+
+        Promotion promotion = findById(promotionId);
+        applyPromotionForm(promotion, form);
+        return promotionRepository.save(promotion);
+    }
+
+    @Transactional
+    public Promotion toggleActive(Integer promotionId) {
+        Promotion promotion = findById(promotionId);
+        promotion.setActive(!Boolean.TRUE.equals(promotion.getActive()));
+        return promotionRepository.save(promotion);
+    }
+
+    @Transactional
+    public boolean deletePromotion(Integer promotionId) {
+        Promotion promotion = findById(promotionId);
+        if (promotion.getUsedCount() != null && promotion.getUsedCount() > 0) {
+            promotion.setActive(false);
+            promotionRepository.save(promotion);
+            return false;
+        }
+
+        promotionRepository.delete(promotion);
+        return true;
+    }
+
+    private void validatePromotionForm(PromotionForm form, Integer currentId) {
+        if (form.code() == null || form.code().isBlank()) {
+            throw new BusinessException("Ma khuyen mai khong duoc de trong");
+        }
+        String code = form.code().trim().toUpperCase();
+        if (code.length() > 30) {
+            throw new BusinessException("Ma khuyen mai toi da 30 ky tu");
+        }
+        boolean duplicated = currentId == null
+            ? promotionRepository.existsByCodeIgnoreCase(code)
+            : promotionRepository.existsByCodeIgnoreCaseAndIdNot(code, currentId);
+        if (duplicated) {
+            throw new BusinessException("Ma khuyen mai da ton tai");
+        }
+
+        if (form.discountType() == null) {
+            throw new BusinessException("Loai giam gia khong duoc de trong");
+        }
+        if (form.discountValue() == null || form.discountValue().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException("Gia tri giam gia phai lon hon 0");
+        }
+        if (form.discountType() == DiscountType.PERCENT && form.discountValue().compareTo(ONE_HUNDRED) > 0) {
+            throw new BusinessException("Giam gia phan tram khong duoc lon hon 100");
+        }
+        if (form.minOrderAmount() != null && form.minOrderAmount().compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("Gia tri don toi thieu khong duoc am");
+        }
+        if (form.maxDiscount() != null && form.maxDiscount().compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("Muc giam toi da khong duoc am");
+        }
+        if (form.startDate() == null || form.endDate() == null) {
+            throw new BusinessException("Ngay bat dau va ngay ket thuc khong duoc de trong");
+        }
+        if (!form.endDate().isAfter(form.startDate())) {
+            throw new BusinessException("Ngay ket thuc phai sau ngay bat dau");
+        }
+        if (form.usageLimit() != null && form.usageLimit() < 0) {
+            throw new BusinessException("Gioi han luot dung khong duoc am");
+        }
+    }
+
+    private void applyPromotionForm(Promotion promotion, PromotionForm form) {
+        promotion.setCode(form.code().trim().toUpperCase());
+        promotion.setDescription(blankToNull(form.description()));
+        promotion.setDiscountType(form.discountType());
+        promotion.setDiscountValue(form.discountValue());
+        promotion.setMinOrderAmount(form.minOrderAmount() == null ? BigDecimal.ZERO : form.minOrderAmount());
+        promotion.setMaxDiscount(form.maxDiscount());
+        promotion.setStartDate(form.startDate());
+        promotion.setEndDate(form.endDate());
+        promotion.setUsageLimit(form.usageLimit());
+        promotion.setActive(form.active() == null || Boolean.TRUE.equals(form.active()));
     }
 
     private void validatePromotion(Promotion promotion, BigDecimal subtotal) {
@@ -79,5 +185,12 @@ public class PromotionService {
         }
 
         return amount;
+    }
+
+    private String blankToNull(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
     }
 }

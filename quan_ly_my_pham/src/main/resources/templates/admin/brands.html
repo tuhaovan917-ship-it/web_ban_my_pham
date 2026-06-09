@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quan ly thuong hieu</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f6f7f9; color: #222; }
+        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        main { max-width: 1040px; margin: 24px auto; padding: 0 16px; }
+        section { background: #fff; border: 1px solid #ddd; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        button, .button { padding: 8px 10px; cursor: pointer; border: 1px solid #777; background: #fff; color: #222; text-decoration: none; display: inline-block; }
+        form { display: inline; }
+        .message { padding: 10px; margin-bottom: 12px; border: 1px solid #b6d7b6; background: #eef6ee; }
+        .error { border-color: #e6b5b5; background: #fdecec; }
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        a { color: #0066cc; text-decoration: none; }
+    </style>
+</head>
+<body>
+<header>
+    <strong>Admin - Thuong hieu</strong>
+    <nav>
+        <a th:href="@{/admin}">Dashboard</a>
+        <span> | </span>
+        <a th:href="@{/admin/products}">San pham</a>
+        <span> | </span>
+        <a th:href="@{/admin/categories}">Danh muc</a>
+    </nav>
+</header>
+
+<main>
+    <div class="message" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="message error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <section>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <h1>Quan ly thuong hieu</h1>
+            <a class="button" th:href="@{/admin/brands/new}">Them thuong hieu</a>
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Ten thuong hieu</th>
+                <th>Mo ta</th>
+                <th>Trang thai</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="brand : ${brands}">
+                <td th:text="${brand.name}"></td>
+                <td th:text="${brand.description != null ? brand.description : ''}"></td>
+                <td th:text="${brand.active ? 'Dang dung' : 'Tam an'}"></td>
+                <td>
+                    <div class="actions">
+                        <a class="button" th:href="@{/admin/brands/{id}/edit(id=${brand.id})}">Sua</a>
+                        <form th:action="@{/admin/brands/{id}/delete(id=${brand.id})}" method="post"
+                              onsubmit="return confirm('Ban chac chan muon xoa thuong hieu nay?');">
+                            <button type="submit">Xoa</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(brands)}">
+                <td colspan="4">Chua co thuong hieu.</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>
