@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: html_head(${pageTitle})}"></head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{layout/fragments :: admin_sidebar('categories')}"></aside>
+    <main class="admin-main">
+        <header class="admin-navbar">
+            <div class="admin-page-title">
+                <h1 th:text="${pageTitle}">Danh mục</h1>
+                <p>Tổ chức nhóm sản phẩm để người mua lọc nhanh hơn.</p>
+            </div>
+            <a th:href="@{/admin/categories}" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left"></i> Danh sách
+            </a>
+        </header>
+
+        <section class="admin-container">
+            <div th:if="${errorMessage}" class="alert alert-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <div class="admin-card">
+                <form class="admin-form" th:action="@{${actionUrl}}" method="post">
+                    <div class="form-group">
+                        <label for="name">Tên danh mục</label>
+                        <input id="name" class="form-control" name="name" type="text" maxlength="50" required
+                               th:value="${category != null ? category.name : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Mô tả</label>
+                        <textarea id="description" class="form-control" name="description" rows="4" maxlength="255"
+                                  th:text="${category != null ? category.description : ''}"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="active">Trạng thái</label>
+                        <select id="active" class="form-control" name="active">
+                            <option value="true" th:selected="${category == null || category.active}">Đang dùng</option>
+                            <option value="false" th:selected="${category != null && !category.active}">Tạm ẩn</option>
+                        </select>
+                    </div>
+                    <div class="admin-form-actions">
+                        <a class="btn btn-secondary" th:href="@{/admin/categories}">Hủy</a>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fa-solid fa-floppy-disk"></i> Lưu danh mục
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

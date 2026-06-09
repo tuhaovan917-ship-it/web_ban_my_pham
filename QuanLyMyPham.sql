@@ -1,7 +1,7 @@
 /*==============================================================
   Database: QuanLyMyPham
   DBMS: SQL Server
-  Purpose: E-commerce cosmetics shop schema
+  Purpose: Cosmetics e-commerce management system
 ==============================================================*/
 
 IF DB_ID(N'QuanLyMyPham') IS NULL
@@ -13,9 +13,7 @@ GO
 USE QuanLyMyPham;
 GO
 
-/*==============================================================
-  Drop tables in dependency order
-==============================================================*/
+/* Drop tables in dependency order */
 IF OBJECT_ID(N'dbo.OrderStatusHistories', N'U') IS NOT NULL DROP TABLE dbo.OrderStatusHistories;
 IF OBJECT_ID(N'dbo.Payments', N'U') IS NOT NULL DROP TABLE dbo.Payments;
 IF OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL DROP TABLE dbo.Reviews;
@@ -31,22 +29,19 @@ IF OBJECT_ID(N'dbo.Categories', N'U') IS NOT NULL DROP TABLE dbo.Categories;
 IF OBJECT_ID(N'dbo.Users', N'U') IS NOT NULL DROP TABLE dbo.Users;
 GO
 
-/*==============================================================
-  Users and authorization
-==============================================================*/
 CREATE TABLE dbo.Users
 (
-    user_id        INT IDENTITY(1,1) NOT NULL,
-    user_name      NVARCHAR(50)      NOT NULL,
-    password       VARCHAR(255)      NOT NULL,
-    full_name      NVARCHAR(100)     NOT NULL,
-    email          VARCHAR(100)      NOT NULL,
-    phone          VARCHAR(15)       NULL,
-    address        NVARCHAR(255)     NULL,
-    role           VARCHAR(20)       NOT NULL CONSTRAINT DF_Users_role DEFAULT ('CUSTOMER'),
-    is_active      BIT               NOT NULL CONSTRAINT DF_Users_is_active DEFAULT (1),
-    created_at     DATETIME2(0)      NOT NULL CONSTRAINT DF_Users_created_at DEFAULT (SYSDATETIME()),
-    updated_at     DATETIME2(0)      NULL,
+    user_id     INT IDENTITY(1,1) NOT NULL,
+    user_name   NVARCHAR(50)      NOT NULL,
+    password    VARCHAR(255)      NOT NULL,
+    full_name   NVARCHAR(100)     NOT NULL,
+    email       VARCHAR(100)      NOT NULL,
+    phone       VARCHAR(15)       NULL,
+    address     NVARCHAR(255)     NULL,
+    role        VARCHAR(20)       NOT NULL CONSTRAINT DF_Users_role DEFAULT ('CUSTOMER'),
+    is_active   BIT               NOT NULL CONSTRAINT DF_Users_is_active DEFAULT (1),
+    created_at  DATETIME2(0)      NOT NULL CONSTRAINT DF_Users_created_at DEFAULT (SYSDATETIME()),
+    updated_at  DATETIME2(0)      NULL,
     CONSTRAINT PK_Users PRIMARY KEY (user_id),
     CONSTRAINT UQ_Users_user_name UNIQUE (user_name),
     CONSTRAINT UQ_Users_email UNIQUE (email),
@@ -55,15 +50,12 @@ CREATE TABLE dbo.Users
 );
 GO
 
-/*==============================================================
-  Catalog
-==============================================================*/
 CREATE TABLE dbo.Categories
 (
-    category_id    INT IDENTITY(1,1) NOT NULL,
-    category_name  NVARCHAR(50)      NOT NULL,
-    description    NVARCHAR(255)     NULL,
-    is_active      BIT               NOT NULL CONSTRAINT DF_Categories_is_active DEFAULT (1),
+    category_id   INT IDENTITY(1,1) NOT NULL,
+    category_name NVARCHAR(50)      NOT NULL,
+    description   NVARCHAR(255)     NULL,
+    is_active     BIT               NOT NULL CONSTRAINT DF_Categories_is_active DEFAULT (1),
     CONSTRAINT PK_Categories PRIMARY KEY (category_id),
     CONSTRAINT UQ_Categories_category_name UNIQUE (category_name)
 );
@@ -71,10 +63,10 @@ GO
 
 CREATE TABLE dbo.Brands
 (
-    brand_id       INT IDENTITY(1,1) NOT NULL,
-    brand_name     NVARCHAR(80)      NOT NULL,
-    description    NVARCHAR(255)     NULL,
-    is_active      BIT               NOT NULL CONSTRAINT DF_Brands_is_active DEFAULT (1),
+    brand_id    INT IDENTITY(1,1) NOT NULL,
+    brand_name  NVARCHAR(80)      NOT NULL,
+    description NVARCHAR(255)     NULL,
+    is_active   BIT               NOT NULL CONSTRAINT DF_Brands_is_active DEFAULT (1),
     CONSTRAINT PK_Brands PRIMARY KEY (brand_id),
     CONSTRAINT UQ_Brands_brand_name UNIQUE (brand_name)
 );
@@ -82,20 +74,20 @@ GO
 
 CREATE TABLE dbo.Products
 (
-    product_id       INT IDENTITY(1,1) NOT NULL,
-    category_id      INT               NOT NULL,
-    brand_id         INT               NULL,
-    name             NVARCHAR(100)     NOT NULL,
-    price            DECIMAL(18,2)     NOT NULL,
-    sale_price       DECIMAL(18,2)     NULL,
-    stock_quantity   INT               NOT NULL CONSTRAINT DF_Products_stock_quantity DEFAULT (0),
-    description      NVARCHAR(MAX)     NULL,
-    main_image_path  NVARCHAR(255)     NULL,
-    is_featured      BIT               NOT NULL CONSTRAINT DF_Products_is_featured DEFAULT (0),
-    is_active        BIT               NOT NULL CONSTRAINT DF_Products_is_active DEFAULT (1),
-    created_at       DATETIME2(0)      NOT NULL CONSTRAINT DF_Products_created_at DEFAULT (SYSDATETIME()),
-    updated_at       DATETIME2(0)      NULL,
-    version          BIGINT            NOT NULL CONSTRAINT DF_Products_version DEFAULT (0),
+    product_id      INT IDENTITY(1,1) NOT NULL,
+    category_id     INT               NOT NULL,
+    brand_id        INT               NULL,
+    name            NVARCHAR(100)     NOT NULL,
+    price           DECIMAL(18,2)     NOT NULL,
+    sale_price      DECIMAL(18,2)     NULL,
+    stock_quantity  INT               NOT NULL CONSTRAINT DF_Products_stock_quantity DEFAULT (0),
+    description     NVARCHAR(MAX)     NULL,
+    main_image_path NVARCHAR(255)     NULL,
+    is_featured     BIT               NOT NULL CONSTRAINT DF_Products_is_featured DEFAULT (0),
+    is_active       BIT               NOT NULL CONSTRAINT DF_Products_is_active DEFAULT (1),
+    created_at      DATETIME2(0)      NOT NULL CONSTRAINT DF_Products_created_at DEFAULT (SYSDATETIME()),
+    updated_at      DATETIME2(0)      NULL,
+    version         BIGINT            NOT NULL CONSTRAINT DF_Products_version DEFAULT (0),
     CONSTRAINT PK_Products PRIMARY KEY (product_id),
     CONSTRAINT FK_Products_Categories FOREIGN KEY (category_id) REFERENCES dbo.Categories(category_id),
     CONSTRAINT FK_Products_Brands FOREIGN KEY (brand_id) REFERENCES dbo.Brands(brand_id),
@@ -107,34 +99,31 @@ GO
 
 CREATE TABLE dbo.ProductImages
 (
-    image_id       INT IDENTITY(1,1) NOT NULL,
-    product_id     INT               NOT NULL,
-    image_path     NVARCHAR(255)     NOT NULL,
-    display_order  INT               NOT NULL CONSTRAINT DF_ProductImages_display_order DEFAULT (0),
-    is_main        BIT               NOT NULL CONSTRAINT DF_ProductImages_is_main DEFAULT (0),
+    image_id      INT IDENTITY(1,1) NOT NULL,
+    product_id    INT               NOT NULL,
+    image_path    NVARCHAR(255)     NOT NULL,
+    display_order INT               NOT NULL CONSTRAINT DF_ProductImages_display_order DEFAULT (0),
+    is_main       BIT               NOT NULL CONSTRAINT DF_ProductImages_is_main DEFAULT (0),
     CONSTRAINT PK_ProductImages PRIMARY KEY (image_id),
     CONSTRAINT FK_ProductImages_Products FOREIGN KEY (product_id) REFERENCES dbo.Products(product_id) ON DELETE CASCADE,
     CONSTRAINT CK_ProductImages_display_order CHECK (display_order >= 0)
 );
 GO
 
-/*==============================================================
-  Promotions and coupons
-==============================================================*/
 CREATE TABLE dbo.Promotions
 (
-    promotion_id      INT IDENTITY(1,1) NOT NULL,
-    code              VARCHAR(30)       NOT NULL,
-    description       NVARCHAR(255)     NULL,
-    discount_type     VARCHAR(20)       NOT NULL,
-    discount_value    DECIMAL(18,2)     NOT NULL,
-    min_order_amount  DECIMAL(18,2)     NOT NULL CONSTRAINT DF_Promotions_min_order_amount DEFAULT (0),
-    max_discount      DECIMAL(18,2)     NULL,
-    start_date        DATETIME2(0)      NOT NULL,
-    end_date          DATETIME2(0)      NOT NULL,
-    usage_limit       INT               NULL,
-    used_count        INT               NOT NULL CONSTRAINT DF_Promotions_used_count DEFAULT (0),
-    is_active         BIT               NOT NULL CONSTRAINT DF_Promotions_is_active DEFAULT (1),
+    promotion_id     INT IDENTITY(1,1) NOT NULL,
+    code             VARCHAR(30)       NOT NULL,
+    description      NVARCHAR(255)     NULL,
+    discount_type    VARCHAR(20)       NOT NULL,
+    discount_value   DECIMAL(18,2)     NOT NULL,
+    min_order_amount DECIMAL(18,2)     NOT NULL CONSTRAINT DF_Promotions_min_order_amount DEFAULT (0),
+    max_discount     DECIMAL(18,2)     NULL,
+    start_date       DATETIME2(0)      NOT NULL,
+    end_date         DATETIME2(0)      NOT NULL,
+    usage_limit      INT               NULL,
+    used_count       INT               NOT NULL CONSTRAINT DF_Promotions_used_count DEFAULT (0),
+    is_active        BIT               NOT NULL CONSTRAINT DF_Promotions_is_active DEFAULT (1),
     CONSTRAINT PK_Promotions PRIMARY KEY (promotion_id),
     CONSTRAINT UQ_Promotions_code UNIQUE (code),
     CONSTRAINT CK_Promotions_discount_type CHECK (discount_type IN ('PERCENT', 'FIXED')),
@@ -148,15 +137,12 @@ CREATE TABLE dbo.Promotions
 );
 GO
 
-/*==============================================================
-  Cart
-==============================================================*/
 CREATE TABLE dbo.Carts
 (
-    cart_id      INT IDENTITY(1,1) NOT NULL,
-    user_id      INT               NOT NULL,
-    created_at   DATETIME2(0)      NOT NULL CONSTRAINT DF_Carts_created_at DEFAULT (SYSDATETIME()),
-    updated_at   DATETIME2(0)      NULL,
+    cart_id    INT IDENTITY(1,1) NOT NULL,
+    user_id    INT               NOT NULL,
+    created_at DATETIME2(0)      NOT NULL CONSTRAINT DF_Carts_created_at DEFAULT (SYSDATETIME()),
+    updated_at DATETIME2(0)      NULL,
     CONSTRAINT PK_Carts PRIMARY KEY (cart_id),
     CONSTRAINT UQ_Carts_user_id UNIQUE (user_id),
     CONSTRAINT FK_Carts_Users FOREIGN KEY (user_id) REFERENCES dbo.Users(user_id) ON DELETE CASCADE
@@ -165,11 +151,11 @@ GO
 
 CREATE TABLE dbo.CartItems
 (
-    cart_item_id  INT IDENTITY(1,1) NOT NULL,
-    cart_id       INT               NOT NULL,
-    product_id    INT               NOT NULL,
-    quantity      INT               NOT NULL,
-    added_at      DATETIME2(0)      NOT NULL CONSTRAINT DF_CartItems_added_at DEFAULT (SYSDATETIME()),
+    cart_item_id INT IDENTITY(1,1) NOT NULL,
+    cart_id      INT               NOT NULL,
+    product_id   INT               NOT NULL,
+    quantity     INT               NOT NULL,
+    added_at     DATETIME2(0)      NOT NULL CONSTRAINT DF_CartItems_added_at DEFAULT (SYSDATETIME()),
     CONSTRAINT PK_CartItems PRIMARY KEY (cart_item_id),
     CONSTRAINT UQ_CartItems_cart_product UNIQUE (cart_id, product_id),
     CONSTRAINT FK_CartItems_Carts FOREIGN KEY (cart_id) REFERENCES dbo.Carts(cart_id) ON DELETE CASCADE,
@@ -178,9 +164,6 @@ CREATE TABLE dbo.CartItems
 );
 GO
 
-/*==============================================================
-  Orders, payment, and status tracking
-==============================================================*/
 CREATE TABLE dbo.Orders
 (
     order_id          INT IDENTITY(1,1) NOT NULL,
@@ -202,7 +185,7 @@ CREATE TABLE dbo.Orders
     CONSTRAINT PK_Orders PRIMARY KEY (order_id),
     CONSTRAINT FK_Orders_Users FOREIGN KEY (user_id) REFERENCES dbo.Users(user_id),
     CONSTRAINT FK_Orders_Promotions FOREIGN KEY (promotion_id) REFERENCES dbo.Promotions(promotion_id),
-    CONSTRAINT CK_Orders_status CHECK (status IN ('PENDING_CONFIRMATION', 'CONFIRMED', 'SHIPPING', 'COMPLETED', 'CANCELLED')),
+    CONSTRAINT CK_Orders_status CHECK (status IN ('PAYMENT_IN_PROGRESS', 'PENDING_CONFIRMATION', 'CONFIRMED', 'SHIPPING', 'COMPLETED', 'CANCELLED')),
     CONSTRAINT CK_Orders_receiver_phone CHECK (receiver_phone NOT LIKE '%[^0-9]%'),
     CONSTRAINT CK_Orders_payment_method CHECK (payment_method IN ('COD', 'CARD', 'EWALLET')),
     CONSTRAINT CK_Orders_amounts CHECK (
@@ -216,13 +199,13 @@ GO
 
 CREATE TABLE dbo.OrderDetails
 (
-    order_detail_id  INT IDENTITY(1,1) NOT NULL,
-    order_id         INT               NOT NULL,
-    product_id       INT               NOT NULL,
-    product_name     NVARCHAR(100)     NOT NULL,
-    unit_price       DECIMAL(18,2)     NOT NULL,
-    quantity         INT               NOT NULL,
-    line_total       DECIMAL(18,2)     NOT NULL,
+    order_detail_id INT IDENTITY(1,1) NOT NULL,
+    order_id        INT               NOT NULL,
+    product_id      INT               NOT NULL,
+    product_name    NVARCHAR(100)     NOT NULL,
+    unit_price      DECIMAL(18,2)     NOT NULL,
+    quantity        INT               NOT NULL,
+    line_total      DECIMAL(18,2)     NOT NULL,
     CONSTRAINT PK_OrderDetails PRIMARY KEY (order_detail_id),
     CONSTRAINT FK_OrderDetails_Orders FOREIGN KEY (order_id) REFERENCES dbo.Orders(order_id) ON DELETE CASCADE,
     CONSTRAINT FK_OrderDetails_Products FOREIGN KEY (product_id) REFERENCES dbo.Products(product_id),
@@ -234,14 +217,14 @@ GO
 
 CREATE TABLE dbo.Payments
 (
-    payment_id      INT IDENTITY(1,1) NOT NULL,
-    order_id        INT               NOT NULL,
-    method          VARCHAR(20)       NOT NULL,
-    status          VARCHAR(20)       NOT NULL CONSTRAINT DF_Payments_status DEFAULT ('UNPAID'),
-    amount          DECIMAL(18,2)     NOT NULL,
-    transaction_id  VARCHAR(100)      NULL,
-    paid_at         DATETIME2(0)      NULL,
-    created_at      DATETIME2(0)      NOT NULL CONSTRAINT DF_Payments_created_at DEFAULT (SYSDATETIME()),
+    payment_id     INT IDENTITY(1,1) NOT NULL,
+    order_id       INT               NOT NULL,
+    method         VARCHAR(20)       NOT NULL,
+    status         VARCHAR(20)       NOT NULL CONSTRAINT DF_Payments_status DEFAULT ('UNPAID'),
+    amount         DECIMAL(18,2)     NOT NULL,
+    transaction_id VARCHAR(100)      NULL,
+    paid_at        DATETIME2(0)      NULL,
+    created_at     DATETIME2(0)      NOT NULL CONSTRAINT DF_Payments_created_at DEFAULT (SYSDATETIME()),
     CONSTRAINT PK_Payments PRIMARY KEY (payment_id),
     CONSTRAINT UQ_Payments_order_id UNIQUE (order_id),
     CONSTRAINT FK_Payments_Orders FOREIGN KEY (order_id) REFERENCES dbo.Orders(order_id) ON DELETE CASCADE,
@@ -253,35 +236,32 @@ GO
 
 CREATE TABLE dbo.OrderStatusHistories
 (
-    history_id   INT IDENTITY(1,1) NOT NULL,
-    order_id     INT               NOT NULL,
-    old_status   VARCHAR(30)       NULL,
-    new_status   VARCHAR(30)       NOT NULL,
-    changed_by   INT               NULL,
-    changed_at   DATETIME2(0)      NOT NULL CONSTRAINT DF_OrderStatusHistories_changed_at DEFAULT (SYSDATETIME()),
-    note         NVARCHAR(255)     NULL,
+    history_id INT IDENTITY(1,1) NOT NULL,
+    order_id   INT               NOT NULL,
+    old_status VARCHAR(30)       NULL,
+    new_status VARCHAR(30)       NOT NULL,
+    changed_by INT               NULL,
+    changed_at DATETIME2(0)      NOT NULL CONSTRAINT DF_OrderStatusHistories_changed_at DEFAULT (SYSDATETIME()),
+    note       NVARCHAR(255)     NULL,
     CONSTRAINT PK_OrderStatusHistories PRIMARY KEY (history_id),
     CONSTRAINT FK_OrderStatusHistories_Orders FOREIGN KEY (order_id) REFERENCES dbo.Orders(order_id) ON DELETE CASCADE,
     CONSTRAINT FK_OrderStatusHistories_Users FOREIGN KEY (changed_by) REFERENCES dbo.Users(user_id),
-    CONSTRAINT CK_OrderStatusHistories_old_status CHECK (old_status IS NULL OR old_status IN ('PENDING_CONFIRMATION', 'CONFIRMED', 'SHIPPING', 'COMPLETED', 'CANCELLED')),
-    CONSTRAINT CK_OrderStatusHistories_new_status CHECK (new_status IN ('PENDING_CONFIRMATION', 'CONFIRMED', 'SHIPPING', 'COMPLETED', 'CANCELLED'))
+    CONSTRAINT CK_OrderStatusHistories_old_status CHECK (old_status IS NULL OR old_status IN ('PAYMENT_IN_PROGRESS', 'PENDING_CONFIRMATION', 'CONFIRMED', 'SHIPPING', 'COMPLETED', 'CANCELLED')),
+    CONSTRAINT CK_OrderStatusHistories_new_status CHECK (new_status IN ('PAYMENT_IN_PROGRESS', 'PENDING_CONFIRMATION', 'CONFIRMED', 'SHIPPING', 'COMPLETED', 'CANCELLED'))
 );
 GO
 
-/*==============================================================
-  Reviews
-==============================================================*/
 CREATE TABLE dbo.Reviews
 (
-    review_id    INT IDENTITY(1,1) NOT NULL,
-    user_id      INT               NOT NULL,
-    product_id   INT               NOT NULL,
-    order_id     INT               NULL,
-    comment      NVARCHAR(500)     NULL,
-    stars        TINYINT           NOT NULL,
-    status       VARCHAR(20)       NOT NULL CONSTRAINT DF_Reviews_status DEFAULT ('PENDING'),
-    created_at   DATETIME2(0)      NOT NULL CONSTRAINT DF_Reviews_created_at DEFAULT (SYSDATETIME()),
-    updated_at   DATETIME2(0)      NULL,
+    review_id  INT IDENTITY(1,1) NOT NULL,
+    user_id    INT               NOT NULL,
+    product_id INT               NOT NULL,
+    order_id   INT               NULL,
+    comment    NVARCHAR(500)     NULL,
+    stars      TINYINT           NOT NULL,
+    status     VARCHAR(20)       NOT NULL CONSTRAINT DF_Reviews_status DEFAULT ('PENDING'),
+    created_at DATETIME2(0)      NOT NULL CONSTRAINT DF_Reviews_created_at DEFAULT (SYSDATETIME()),
+    updated_at DATETIME2(0)      NULL,
     CONSTRAINT PK_Reviews PRIMARY KEY (review_id),
     CONSTRAINT FK_Reviews_Users FOREIGN KEY (user_id) REFERENCES dbo.Users(user_id) ON DELETE CASCADE,
     CONSTRAINT FK_Reviews_Products FOREIGN KEY (product_id) REFERENCES dbo.Products(product_id) ON DELETE CASCADE,
@@ -291,9 +271,6 @@ CREATE TABLE dbo.Reviews
 );
 GO
 
-/*==============================================================
-  Useful indexes for search, filtering, and admin dashboard
-==============================================================*/
 CREATE INDEX IX_Products_name ON dbo.Products(name);
 CREATE INDEX IX_Products_category ON dbo.Products(category_id);
 CREATE INDEX IX_Products_brand ON dbo.Products(brand_id);
@@ -305,9 +282,6 @@ CREATE INDEX IX_Orders_order_date ON dbo.Orders(order_date DESC);
 CREATE INDEX IX_Reviews_product ON dbo.Reviews(product_id);
 GO
 
-/*==============================================================
-  Seed data for demo
-==============================================================*/
 INSERT INTO dbo.Users (user_name, password, full_name, email, phone, role)
 VALUES
 ('admin', '$2a$10$replace_with_bcrypt_hash', N'Administrator', 'admin@example.com', '0900000000', 'ADMIN'),

@@ -1,51 +1,44 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Dang ky</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; background: #f7f7f7; }
-        main { max-width: 520px; margin: 0 auto; padding: 24px; background: #fff; border: 1px solid #ddd; }
-        label { display: block; margin-top: 12px; }
-        input { width: 100%; box-sizing: border-box; padding: 10px; margin-top: 4px; }
-        button { margin-top: 16px; padding: 10px 16px; cursor: pointer; }
-        .error { color: #b00020; font-size: 14px; margin-top: 4px; }
-    </style>
-</head>
+<head th:replace="~{layout/fragments :: html_head('Đăng ký')}"></head>
 <body>
-<main>
-    <h1>Dang ky tai khoan</h1>
-    <div class="error" th:if="${registerError}" th:text="${registerError}"></div>
-
-    <form th:action="@{/register}" th:object="${registerRequest}" method="post">
-        <label for="userName">Ten dang nhap</label>
-        <input id="userName" th:field="*{userName}" type="text" required>
-        <div class="error" th:errors="*{userName}"></div>
-
-        <label for="password">Mat khau</label>
-        <input id="password" th:field="*{password}" type="password" required>
-        <div class="error" th:errors="*{password}"></div>
-
-        <label for="fullName">Ho ten</label>
-        <input id="fullName" th:field="*{fullName}" type="text" required>
-        <div class="error" th:errors="*{fullName}"></div>
-
-        <label for="email">Email</label>
-        <input id="email" th:field="*{email}" type="email" required>
-        <div class="error" th:errors="*{email}"></div>
-
-        <label for="phone">So dien thoai</label>
-        <input id="phone" th:field="*{phone}" type="text">
-        <div class="error" th:errors="*{phone}"></div>
-
-        <label for="address">Dia chi</label>
-        <input id="address" th:field="*{address}" type="text">
-        <div class="error" th:errors="*{address}"></div>
-
-        <button type="submit">Dang ky</button>
-    </form>
-
-    <p>Da co tai khoan? <a th:href="@{/login}">Dang nhap</a></p>
-</main>
+  <header th:replace="~{layout/fragments :: header('register')}"></header>
+  <main class="container" style="display:flex;justify-content:center;align-items:center;min-height:80vh;">
+    <section class="glass-card" style="padding:32px;max-width:460px;width:100%;border-radius:16px;box-shadow:var(--shadow-lg);background:rgba(255,255,255,0.25);backdrop-filter:blur(12px);">
+      <h2 style="text-align:center;margin-bottom:24px;font-weight:800;color:var(--primary-dark);">Đăng ký tài khoản</h2>
+      <div class="message error" th:if="${registerError}" th:text="${registerError}" style="background:#fdecea;color:#b91c1c;border:1px solid #fca5a5;padding:10px;margin-bottom:12px;"></div>
+      <form th:action="@{/register}" th:object="${registerRequest}" method="post" style="display:flex;flex-direction:column;gap:16px;">
+        <div>
+          <label for="userName">Tên đăng nhập</label>
+          <input id="userName" th:field="*{userName}" type="text" required style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);">
+        </div>
+        <div>
+          <label for="password">Mật khẩu</label>
+          <input id="password" th:field="*{password}" type="password" required style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);">
+        </div>
+        <div>
+          <label for="fullName">Họ và tên</label>
+          <input id="fullName" th:field="*{fullName}" type="text" required style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);">
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input id="email" th:field="*{email}" type="email" required style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);">
+        </div>
+        <div>
+          <label for="phone">Số điện thoại</label>
+          <input id="phone" th:field="*{phone}" type="text" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);">
+        </div>
+        <div>
+          <label for="address">Địa chỉ</label>
+          <input id="address" th:field="*{address}" type="text" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Đăng ký</button>
+      </form>
+      <p style="margin-top:16px;text-align:center;">
+        Đã có tài khoản? <a th:href="@{/login}" class="btn btn-outline" style="margin-left:8px;">Đăng nhập</a>
+      </p>
+    </section>
+  </main>
+  <footer th:replace="~{layout/fragments :: footer}"></footer>
 </body>
 </html>

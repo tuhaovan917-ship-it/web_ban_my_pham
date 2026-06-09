@@ -23,4 +23,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer>, JpaS
     List<Product> findByPriceBetweenAndActiveTrue(BigDecimal minPrice, BigDecimal maxPrice);
 
     List<Product> findTop8ByActiveTrueOrderByCreatedAtDesc();
+
+    long countByCategoryId(Integer categoryId);
+
+    long countByBrandId(Integer brandId);
 }

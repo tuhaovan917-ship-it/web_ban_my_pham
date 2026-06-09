@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: html_head('Quản lý thương hiệu')}"></head>
+<body>
+
+<div class="admin-layout">
+    <!-- Sidebar dùng chung (activePage = 'brands') -->
+    <aside th:replace="~{layout/fragments :: admin_sidebar('brands')}"></aside>
+    
+    <div class="admin-main">
+        <!-- Top navbar của admin -->
+        <header class="admin-navbar">
+            <span style="font-weight: 700; color: var(--text-main); font-size: 1.1rem;">
+                <i class="fa-solid fa-award" style="color: var(--primary); margin-right: 8px;"></i>QUẢN LÝ THƯƠNG HIỆU
+            </span>
+            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
+                GlowCosmetics &bull; Admin Panel
+            </div>
+        </header>
+        
+        <!-- Content chính -->
+        <main class="admin-container">
+            
+            <!-- Alert Messages -->
+            <div class="alert alert-success" th:if="${successMessage}">
+                <i class="fa-solid fa-circle-check"></i>
+                <span th:text="${successMessage}"></span>
+            </div>
+            <div class="alert alert-error" th:if="${errorMessage}">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- Card danh sách thương hiệu -->
+            <section class="admin-card">
+                <div class="admin-section-header">
+                    <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--dark); margin: 0;">Thương hiệu mỹ phẩm</h2>
+                    <a class="btn btn-primary" th:href="@{/admin/brands/new}">
+                        <i class="fa-solid fa-plus"></i> Thêm thương hiệu
+                    </a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table-custom">
+                        <thead>
+                        <tr>
+                            <th style="width: 25%;">Tên thương hiệu</th>
+                            <th style="width: 45%;">Mô tả</th>
+                            <th style="width: 15%; text-align: center;">Trạng thái</th>
+                            <th style="width: 15%; text-align: center;">Thao tác</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="brand : ${brands}">
+                            <td th:text="${brand.name}" style="font-weight: 700; color: var(--dark);">Tên thương hiệu</td>
+                            <td th:text="${brand.description != null ? brand.description : ''}">Mô tả</td>
+                            <td style="text-align: center;">
+                                <span class="badge" th:classappend="${brand.active} ? 'badge-completed' : 'badge-cancelled'" 
+                                      th:text="${brand.active} ? 'Đang dùng' : 'Tạm ẩn'">Trạng thái</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <div style="display: flex; gap: 8px; justify-content: center;">
+                                    <a class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" th:href="@{/admin/brands/{id}/edit(id=${brand.id})}">
+                                        <i class="fa-solid fa-pen-to-square"></i> Sửa
+                                    </a>
+                                    <form th:action="@{/admin/brands/{id}/delete(id=${brand.id})}" method="post"
+                                          onsubmit="return confirm('Bạn chắc chắn muốn xóa thương hiệu này?');" style="display: inline;">
+                                        <button type="submit" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.85rem;">
+                                            <i class="fa-solid fa-trash-can"></i> Xóa
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(brands)}">
+                            <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Chưa có thương hiệu nào.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+</body>
+</html>

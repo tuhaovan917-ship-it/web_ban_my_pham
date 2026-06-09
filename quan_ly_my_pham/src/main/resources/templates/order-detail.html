@@ -1,91 +1,192 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Chi tiet don hang</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
-        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-        main { max-width: 1040px; margin: 24px auto; padding: 0 16px; }
-        section { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 16px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        button { padding: 9px 14px; cursor: pointer; }
-        .message { padding: 10px; margin-bottom: 12px; border: 1px solid #b6d7b6; background: #eef6ee; }
-        .error { border-color: #e6b5b5; background: #fdecec; }
-        .summary-row { display: flex; justify-content: space-between; margin: 8px 0; }
-        a { color: #0066cc; text-decoration: none; }
-    </style>
-</head>
+<head th:replace="~{layout/fragments :: html_head('Chi tiết đơn hàng')}"></head>
 <body>
-<header>
-    <strong>Quan Ly My Pham</strong>
-    <nav>
-        <a th:href="@{/orders}">Lich su don hang</a>
-        <span> | </span>
-        <a th:href="@{/products}">San pham</a>
-    </nav>
-</header>
 
-<main>
-    <div class="message" th:if="${successMessage}" th:text="${successMessage}"></div>
-    <div class="message error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+<!-- Header dùng chung -->
+<header th:replace="~{layout/fragments :: header('orders')}"></header>
 
-    <section>
-        <h1 th:text="'Don hang #' + ${order.id}"></h1>
-        <p th:text="'Trang thai: ' + ${order.status}"></p>
-        <p th:text="'Ngay dat: ' + ${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></p>
-        <p th:text="'Nguoi nhan: ' + ${order.receiverName}"></p>
-        <p th:text="'So dien thoai: ' + ${order.receiverPhone}"></p>
-        <p th:text="'Dia chi: ' + ${order.shippingAddress}"></p>
-        <p th:text="'Thanh toan: ' + ${order.paymentMethod}"></p>
+<main class="container">
+    <div style="margin-bottom: 20px; font-size: 0.9rem;">
+        <a th:href="@{/}">Trang chủ</a> &gt; 
+        <a th:href="@{/orders}">Đơn hàng</a> &gt; 
+        <span th:text="'Chi tiết đơn hàng #' + ${order.id}" style="color: var(--text-muted);">Mã đơn hàng</span>
+    </div>
 
-        <form th:if="${canCancel}" th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post">
-            <button type="submit">Huy don hang</button>
-        </form>
-    </section>
+    <!-- Alert Messages -->
+    <div class="alert alert-success" th:if="${successMessage}">
+        <i class="fa-solid fa-circle-check"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+    <div class="alert alert-error" th:if="${errorMessage}">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
 
-    <section>
-        <h2>San pham</h2>
-        <table>
-            <thead>
-            <tr>
-                <th>San pham</th>
-                <th>Don gia</th>
-                <th>So luong</th>
-                <th>Thanh tien</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="detail : ${order.orderDetails}">
-                <td th:text="${detail.productName}"></td>
-                <td th:text="${#numbers.formatDecimal(detail.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
-                <td th:text="${detail.quantity}"></td>
-                <td th:text="${#numbers.formatDecimal(detail.lineTotal, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
-            </tr>
-            </tbody>
-        </table>
-    </section>
+    <!-- Layout 2 cột: Cột trái Thông tin & Sản phẩm, Cột phải Tổng hợp hóa đơn -->
+    <div style="display: grid; grid-template-columns: 1fr 380px; gap: 30px; align-items: start;">
+        
+        <!-- Cột trái: Thông tin nhận hàng & Danh sách sản phẩm -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            
+            <!-- Card 1: Thông tin vận chuyển -->
+            <section class="admin-card" style="margin: 0; padding: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px;">
+                    <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--dark); margin: 0;">
+                        <i class="fa-solid fa-receipt" style="color: var(--primary); margin-right: 8px;"></i>
+                        <span th:text="'Đơn hàng #' + ${order.id}"></span>
+                    </h2>
+                    
+                    <!-- Badge trạng thái đơn hàng -->
+                    <span class="badge" th:classappend="${
+                        order.status == 'PENDING_CONFIRMATION' ? 'badge-pending' : (
+                        order.status == 'CONFIRMED' ? 'badge-confirmed' : (
+                        order.status == 'SHIPPING' ? 'badge-shipping' : (
+                        order.status == 'COMPLETED' ? 'badge-completed' : 'badge-cancelled')))
+                    }" th:text="${
+                        order.status == 'PENDING_CONFIRMATION' ? 'Chờ xác nhận' : (
+                        order.status == 'CONFIRMED' ? 'Đã xác nhận' : (
+                        order.status == 'SHIPPING' ? 'Đang giao hàng' : (
+                        order.status == 'COMPLETED' ? 'Đã hoàn thành' : 'Đã hủy')))
+                    }">Trạng thái</span>
+                </div>
 
-    <section>
-        <h2>Tong ket</h2>
-        <div class="summary-row">
-            <span>Tam tinh</span>
-            <strong th:text="${#numbers.formatDecimal(order.subtotalAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></strong>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.95rem;">
+                    <div>
+                        <p style="margin-bottom: 8px;"><strong style="color: var(--text-muted);">Ngày đặt:</strong> <span th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></span></p>
+                        <p style="margin-bottom: 8px;"><strong style="color: var(--text-muted);">Người nhận:</strong> <span th:text="${order.receiverName}"></span></p>
+                        <p style="margin-bottom: 8px;"><strong style="color: var(--text-muted);">Số điện thoại:</strong> <span th:text="${order.receiverPhone}"></span></p>
+                    </div>
+                    <div>
+                        <p style="margin-bottom: 8px;"><strong style="color: var(--text-muted);">Địa chỉ giao:</strong> <span th:text="${order.shippingAddress}"></span></p>
+                        <p style="margin-bottom: 8px;"><strong style="color: var(--text-muted);">Phương thức TT:</strong> <span th:text="${order.paymentMethod}"></span></p>
+                        <p th:if="${order.note != null && !order.note.isBlank()}" style="margin-bottom: 8px;">
+                            <strong style="color: var(--text-muted);">Ghi chú:</strong> <span th:text="${order.note}"></span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Nút hủy đơn hàng chỉ cho phép khi chờ xác nhận -->
+                <div th:if="${canCancel}" style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; text-align: right;">
+                    <form th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post" onsubmit="return confirm('Bạn chắc chắn muốn hủy đơn hàng này chứ?');">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fa-solid fa-ban"></i> Hủy đơn hàng
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Card 2: Danh sách sản phẩm & Form đánh giá -->
+            <section class="admin-card" style="margin: 0; padding: 24px;">
+                <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--dark); margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                    <i class="fa-solid fa-box" style="color: var(--secondary); margin-right: 8px;"></i>Danh sách sản phẩm mua
+                </h2>
+                
+                <div class="table-responsive">
+                    <table class="table-custom">
+                        <thead>
+                        <tr>
+                            <th style="width: 40%;">Sản phẩm</th>
+                            <th style="width: 15%; text-align: right;">Đơn giá</th>
+                            <th style="width: 10%; text-align: center;">SL</th>
+                            <th style="width: 15%; text-align: right;">Thành tiền</th>
+                            <th th:if="${canReview}" style="width: 20%; text-align: center;">Đánh giá</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="detail : ${order.orderDetails}">
+                            <td>
+                                <a th:href="@{/product/{id}(id=${detail.product.id})}" th:text="${detail.productName}" style="font-weight: 700; color: var(--dark);">Sản phẩm</a>
+                            </td>
+                            <td style="text-align: right;" th:text="${#numbers.formatDecimal(detail.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                            <td style="text-align: center; font-weight: 600;" th:text="${detail.quantity}">1</td>
+                            <td style="text-align: right; font-weight: 700; color: var(--primary-dark);" th:text="${#numbers.formatDecimal(detail.lineTotal, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                            
+                            <!-- Cột Đánh giá sản phẩm (nếu đơn hàng đã COMPLETED) -->
+                            <td th:if="${canReview}" style="text-align: center;">
+                                <div th:if="${reviewedProductIds.contains(detail.product.id)}" class="badge badge-completed" style="padding: 6px 10px;">
+                                    <i class="fa-solid fa-check"></i> Đã đánh giá
+                                </div>
+                                <div th:unless="${reviewedProductIds.contains(detail.product.id)}">
+                                    <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" th:onclick="'document.getElementById(\'review-form-' + ${detail.product.id} + '\').style.display=\'block\'; this.style.display=\'none\';'">
+                                        <i class="fa-regular fa-star"></i> Đánh giá
+                                    </button>
+                                    
+                                    <!-- Form đánh giá ẩn bật lên -->
+                                    <form th:id="'review-form-' + ${detail.product.id}" style="display: none; text-align: left; margin-top: 10px; background: var(--primary-light); padding: 12px; border-radius: var(--radius-sm); border: 1px solid rgba(217,70,239,0.15);"
+                                          th:action="@{/orders/{id}/reviews(id=${order.id})}" method="post">
+                                        <input type="hidden" name="productId" th:value="${detail.product.id}">
+                                        
+                                        <div class="form-group" style="margin-bottom: 8px;">
+                                            <label style="font-size: 0.8rem; font-weight: 600;">Số sao:</label>
+                                            <select name="stars" class="form-control" style="padding: 4px 8px; font-size: 0.85rem;" required>
+                                                <option value="5">⭐⭐⭐⭐⭐ (5 sao)</option>
+                                                <option value="4">⭐⭐⭐⭐ (4 sao)</option>
+                                                <option value="3">⭐⭐⭐ (3 sao)</option>
+                                                <option value="2">⭐⭐ (2 sao)</option>
+                                                <option value="1">⭐ (1 sao)</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="form-group" style="margin-bottom: 8px;">
+                                            <textarea name="comment" class="form-control" style="padding: 6px; font-size: 0.85rem; min-height: 50px;" maxlength="500" placeholder="Cảm nhận của bạn về sản phẩm..." required></textarea>
+                                        </div>
+                                        
+                                        <div style="display: flex; gap: 6px;">
+                                            <button type="submit" class="btn btn-primary" style="padding: 5px 10px; font-size: 0.75rem; flex-grow: 1;">Gửi</button>
+                                            <button type="button" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.75rem;" th:onclick="'document.getElementById(\'review-form-' + ${detail.product.id} + '\').style.display=\'none\'; document.querySelector(\'button[onclick*=\\\'review-form-' + ${detail.product.id} + '\\\']\').style.display=\'inline-block\';'">Hủy</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
-        <div class="summary-row">
-            <span>Giam gia</span>
-            <strong th:text="${#numbers.formatDecimal(order.discountAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></strong>
-        </div>
-        <div class="summary-row">
-            <span>Phi giao hang</span>
-            <strong th:text="${#numbers.formatDecimal(order.shippingFee, 0, 'COMMA', 0, 'POINT')} + ' VND'"></strong>
-        </div>
-        <div class="summary-row">
-            <span>Tong tien</span>
-            <strong th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></strong>
-        </div>
-    </section>
+
+        <!-- Cột phải: Tổng kết tài chính đơn hàng -->
+        <section class="admin-card" style="margin: 0; padding: 24px;">
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--dark); margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                <i class="fa-solid fa-calculator" style="color: var(--secondary); margin-right: 8px;"></i>Tổng kết thanh toán
+            </h2>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.95rem;">
+                <div class="summary-row" style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Tạm tính:</span>
+                    <strong th:text="${#numbers.formatDecimal(order.subtotalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></strong>
+                </div>
+                <div class="summary-row" style="display: flex; justify-content: space-between; color: var(--error);">
+                    <span>Khuyến mãi giảm:</span>
+                    <strong th:text="'- ' + ${#numbers.formatDecimal(order.discountAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></strong>
+                </div>
+                <div class="summary-row" style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Phí giao hàng:</span>
+                    <strong th:text="${#numbers.formatDecimal(order.shippingFee, 0, 'COMMA', 0, 'POINT')} + ' đ'"></strong>
+                </div>
+                
+                <div class="summary-row" style="display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 14px; margin-top: 6px; font-size: 1.15rem; color: var(--primary-dark);">
+                    <span>Tổng hóa đơn:</span>
+                    <strong th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'" style="font-size: 1.35rem; font-weight: 800;"></strong>
+                </div>
+            </div>
+            
+            <div style="margin-top: 28px; display: flex; flex-direction: column; gap: 10px;">
+                <a th:href="@{/orders}" class="btn btn-secondary" style="width: 100%;">
+                    <i class="fa-solid fa-list-check"></i> Quay lại danh sách đơn
+                </a>
+                <a th:href="@{/products}" class="btn btn-outline" style="width: 100%;">
+                    <i class="fa-solid fa-basket-shopping"></i> Tiếp tục mua sắm
+                </a>
+            </div>
+        </section>
+        
+    </div>
 </main>
+
+<!-- Footer dùng chung -->
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+
 </body>
 </html>

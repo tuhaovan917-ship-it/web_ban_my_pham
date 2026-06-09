@@ -1,113 +1,144 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin dashboard</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; background: #f6f7f9; color: #222; }
-        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-        main { max-width: 1180px; margin: 24px auto; padding: 0 16px; }
-        section { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 16px; }
-        .stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
-        .stat { border: 1px solid #ddd; padding: 14px; background: #fafafa; }
-        .stat span { display: block; color: #666; font-size: 13px; margin-bottom: 8px; }
-        .stat strong { font-size: 22px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        a { color: #0066cc; text-decoration: none; }
-        @media (max-width: 860px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    </style>
-</head>
+<head th:replace="~{layout/fragments :: html_head('Admin Dashboard')}"></head>
 <body>
-<header>
-    <strong>Admin - Quan Ly My Pham</strong>
-    <nav>
-        <a th:href="@{/admin/products}">San pham</a>
-        <span> | </span>
-        <a th:href="@{/admin/orders}">Don hang</a>
-        <span> | </span>
-        <a th:href="@{/products}">Xem cua hang</a>
-    </nav>
-</header>
 
-<main>
-    <section>
-        <h1>Tong quan</h1>
-        <div class="stats">
-            <div class="stat">
-                <span>Don hang</span>
-                <strong th:text="${summary.totalOrders}"></strong>
+<div class="admin-layout">
+    <!-- Sidebar dùng chung (activePage = 'dashboard') -->
+    <aside th:replace="~{layout/fragments :: admin_sidebar('dashboard')}"></aside>
+    
+    <div class="admin-main">
+        <!-- Top navbar của admin -->
+        <header class="admin-navbar">
+            <span style="font-weight: 700; color: var(--text-main); font-size: 1.1rem;">
+                <i class="fa-solid fa-gauge-high" style="color: var(--primary); margin-right: 8px;"></i>HỆ THỐNG QUẢN TRỊ
+            </span>
+            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
+                GlowCosmetics Dashboard &bull; Admin Panel
             </div>
-            <div class="stat">
-                <span>Khach hang</span>
-                <strong th:text="${summary.totalCustomers}"></strong>
+        </header>
+        
+        <!-- Content chính -->
+        <main class="admin-container">
+            
+            <!-- Tiêu đề trang -->
+            <div style="border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 24px;">
+                <h1 style="font-weight: 800; color: var(--dark); font-size: 1.8rem; margin: 0;">Tổng quan hoạt động</h1>
             </div>
-            <div class="stat">
-                <span>San pham</span>
-                <strong th:text="${summary.totalProducts}"></strong>
-            </div>
-            <div class="stat">
-                <span>Gan het hang</span>
-                <strong th:text="${summary.lowStockProducts}"></strong>
-            </div>
-            <div class="stat">
-                <span>Doanh thu hoan thanh</span>
-                <strong th:text="${#numbers.formatDecimal(summary.completedRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'"></strong>
-            </div>
-        </div>
-    </section>
 
-    <section>
-        <h2>Don hang moi</h2>
-        <table>
-            <thead>
-            <tr>
-                <th>Ma don</th>
-                <th>Khach hang</th>
-                <th>Ngay dat</th>
-                <th>Trang thai</th>
-                <th>Tong tien</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="order : ${recentOrders}">
-                <td th:text="${order.id}"></td>
-                <td th:text="${order.user.fullName}"></td>
-                <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
-                <td th:text="${order.status}"></td>
-                <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
-                <td><a th:href="@{/admin/orders/{id}(id=${order.id})}">Chi tiet</a></td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(recentOrders)}">
-                <td colspan="6">Chua co don hang.</td>
-            </tr>
-            </tbody>
-        </table>
-    </section>
+            <!-- Grid Thống kê (admin-stat-grid) -->
+            <section class="admin-stat-grid">
+                <div class="admin-stat-card">
+                    <span>Tổng đơn hàng</span>
+                    <strong th:text="${summary.totalOrders}">0</strong>
+                </div>
+                <div class="admin-stat-card">
+                    <span>Tổng khách hàng</span>
+                    <strong th:text="${summary.totalCustomers}">0</strong>
+                </div>
+                <div class="admin-stat-card">
+                    <span>Tổng sản phẩm</span>
+                    <strong th:text="${summary.totalProducts}">0</strong>
+                </div>
+                <div class="admin-stat-card" style="border-color: rgba(239,68,68,0.25);">
+                    <span style="color: var(--error);">Sản phẩm sắp hết</span>
+                    <strong th:text="${summary.lowStockProducts}" style="color: var(--error);">0</strong>
+                </div>
+                <div class="admin-stat-card" style="border-color: rgba(16,185,129,0.25);">
+                    <span style="color: var(--success);">Doanh thu tích lũy</span>
+                    <strong th:text="${#numbers.formatDecimal(summary.completedRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'" style="color: var(--success); font-size: 1.5rem;">0 đ</strong>
+                </div>
+            </section>
 
-    <section>
-        <h2>Canh bao ton kho</h2>
-        <table>
-            <thead>
-            <tr>
-                <th>San pham</th>
-                <th>Thuong hieu</th>
-                <th>Ton kho</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="product : ${lowStockProducts}">
-                <td th:text="${product.name}"></td>
-                <td th:text="${product.brand != null ? product.brand.name : 'Khong co'}"></td>
-                <td th:text="${product.stockQuantity}"></td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(lowStockProducts)}">
-                <td colspan="3">Khong co san pham sap het hang.</td>
-            </tr>
-            </tbody>
-        </table>
-    </section>
-</main>
+            <!-- Layout 2 khu vực chính -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+                
+                <!-- Bảng đơn hàng mới nhận -->
+                <section class="admin-card" style="margin: 0; padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                        <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--dark); margin: 0;">
+                            <i class="fa-solid fa-cart-flatbed-suitcases" style="color: var(--primary); margin-right: 6px;"></i> Đơn hàng gần đây
+                        </h2>
+                        <a th:href="@{/admin/orders}" style="font-size: 0.8rem; font-weight: 600;">Xem tất cả</a>
+                    </div>
+                    
+                    <div class="table-responsive" style="border: none; box-shadow: none;">
+                        <table class="table-custom" style="font-size: 0.85rem;">
+                            <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="order : ${recentOrders}">
+                                <td th:text="'#' + ${order.id}" style="font-weight: 700; color: var(--dark);"></td>
+                                <td th:text="${order.user.fullName}"></td>
+                                <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'" style="font-weight: 700;"></td>
+                                <td>
+                                    <span class="badge" th:classappend="${
+                                        order.status == 'PENDING_CONFIRMATION' ? 'badge-pending' : (
+                                        order.status == 'CONFIRMED' ? 'badge-confirmed' : (
+                                        order.status == 'SHIPPING' ? 'badge-shipping' : (
+                                        order.status == 'COMPLETED' ? 'badge-completed' : 'badge-cancelled')))
+                                    }" th:text="${
+                                        order.status == 'PENDING_CONFIRMATION' ? 'Chờ duyệt' : (
+                                        order.status == 'CONFIRMED' ? 'Đã duyệt' : (
+                                        order.status == 'SHIPPING' ? 'Đang giao' : (
+                                        order.status == 'COMPLETED' ? 'Hoàn thành' : 'Đã hủy')))
+                                    }" style="padding: 3px 6px; font-size: 0.65rem;"></span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/admin/orders/{id}(id=${order.id})}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;">Chi tiết</a>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(recentOrders)}">
+                                <td colspan="5" style="text-align: center; color: var(--text-muted);">Chưa có đơn hàng nào gần đây.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Bảng cảnh báo tồn kho -->
+                <section class="admin-card" style="margin: 0; padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                        <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--dark); margin: 0;">
+                            <i class="fa-solid fa-triangle-exclamation" style="color: var(--error); margin-right: 6px;"></i> Cảnh báo hết hàng
+                        </h2>
+                        <a th:href="@{/admin/products}" style="font-size: 0.8rem; font-weight: 600;">Quản lý kho</a>
+                    </div>
+                    
+                    <div class="table-responsive" style="border: none; box-shadow: none;">
+                        <table class="table-custom" style="font-size: 0.85rem;">
+                            <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Thương hiệu</th>
+                                <th style="text-align: center;">Tồn kho</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="product : ${lowStockProducts}">
+                                <td th:text="${product.name}" style="font-weight: 600;"></td>
+                                <td th:text="${product.brand != null ? product.brand.name : 'Chính hãng'}"></td>
+                                <td th:text="${product.stockQuantity}" style="text-align: center; font-weight: 700; color: var(--error);"></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(lowStockProducts)}">
+                                <td colspan="3" style="text-align: center; color: var(--success); font-weight: 500;">Mọi sản phẩm đều đủ số lượng kho.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+            </div>
+        </main>
+    </div>
+</div>
+
 </body>
 </html>

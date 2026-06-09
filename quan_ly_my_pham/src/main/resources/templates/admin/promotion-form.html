@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: html_head(${pageTitle})}"></head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{layout/fragments :: admin_sidebar('promotions')}"></aside>
+
+    <main class="admin-main">
+        <header class="admin-navbar">
+            <div class="admin-page-title">
+                <h1 th:text="${pageTitle}">Khuyến mãi</h1>
+                <p>Thiết lập mã giảm giá theo phần trăm hoặc số tiền cố định.</p>
+            </div>
+            <a th:href="@{/admin/promotions}" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left"></i> Danh sách
+            </a>
+        </header>
+
+        <section class="admin-container">
+            <div th:if="${errorMessage}" class="alert alert-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <div class="admin-card">
+                <form class="admin-form" th:action="@{${actionUrl}}" method="post">
+                    <div class="admin-form-grid">
+                        <div class="form-group">
+                            <label for="code">Mã khuyến mãi</label>
+                            <input id="code" class="form-control" name="code" type="text" maxlength="30" required
+                                   th:value="${promotion != null ? promotion.code : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="discountType">Loại giảm giá</label>
+                            <select id="discountType" class="form-control" name="discountType" required>
+                                <option th:each="type : ${discountTypes}"
+                                        th:value="${type}"
+                                        th:selected="${promotion != null && promotion.discountType == type}"
+                                        th:text="${type}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Mô tả</label>
+                        <textarea id="description" class="form-control" name="description" rows="3" maxlength="255"
+                                  th:text="${promotion != null ? promotion.description : ''}"></textarea>
+                    </div>
+
+                    <div class="admin-form-grid">
+                        <div class="form-group">
+                            <label for="discountValue">Giá trị giảm</label>
+                            <input id="discountValue" class="form-control" name="discountValue" type="number" min="0" step="0.01" required
+                                   th:value="${promotion != null ? promotion.discountValue : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="maxDiscount">Mức giảm tối đa</label>
+                            <input id="maxDiscount" class="form-control" name="maxDiscount" type="number" min="0" step="1000"
+                                   th:value="${promotion != null && promotion.maxDiscount != null ? promotion.maxDiscount : ''}">
+                        </div>
+                    </div>
+
+                    <div class="admin-form-grid">
+                        <div class="form-group">
+                            <label for="minOrderAmount">Đơn tối thiểu</label>
+                            <input id="minOrderAmount" class="form-control" name="minOrderAmount" type="number" min="0" step="1000"
+                                   th:value="${promotion != null ? promotion.minOrderAmount : 0}">
+                        </div>
+                        <div class="form-group">
+                            <label for="usageLimit">Giới hạn lượt dùng</label>
+                            <input id="usageLimit" class="form-control" name="usageLimit" type="number" min="0"
+                                   th:value="${promotion != null && promotion.usageLimit != null ? promotion.usageLimit : ''}">
+                        </div>
+                    </div>
+
+                    <div class="admin-form-grid">
+                        <div class="form-group">
+                            <label for="startDate">Ngày bắt đầu</label>
+                            <input id="startDate" class="form-control" name="startDate" type="datetime-local" required
+                                   th:value="${promotion != null ? #temporals.format(promotion.startDate, 'yyyy-MM-dd''T''HH:mm') : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">Ngày kết thúc</label>
+                            <input id="endDate" class="form-control" name="endDate" type="datetime-local" required
+                                   th:value="${promotion != null ? #temporals.format(promotion.endDate, 'yyyy-MM-dd''T''HH:mm') : ''}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="active">Trạng thái</label>
+                        <select id="active" class="form-control" name="active">
+                            <option value="true" th:selected="${promotion == null || promotion.active}">Đang bật</option>
+                            <option value="false" th:selected="${promotion != null && !promotion.active}">Tạm tắt</option>
+                        </select>
+                    </div>
+
+                    <div class="admin-form-actions">
+                        <a class="btn btn-secondary" th:href="@{/admin/promotions}">Hủy</a>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fa-solid fa-floppy-disk"></i> Lưu khuyến mãi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

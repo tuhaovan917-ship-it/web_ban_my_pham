@@ -6,6 +6,7 @@ import do_an_java.quan_ly_my_pham.model.Order;
 import do_an_java.quan_ly_my_pham.model.OrderStatus;
 import do_an_java.quan_ly_my_pham.model.User;
 import do_an_java.quan_ly_my_pham.service.OrderService;
+import do_an_java.quan_ly_my_pham.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -13,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -20,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class OrderController {
     private final CurrentUser currentUser;
     private final OrderService orderService;
+    private final ReviewService reviewService;
 
     @GetMapping("/orders")
     public String orderHistory(Authentication authentication, Model model) {
@@ -43,7 +46,12 @@ public class OrderController {
         }
 
         model.addAttribute("order", order);
-        model.addAttribute("canCancel", order.getStatus() == OrderStatus.PENDING_CONFIRMATION);
+        model.addAttribute(
+            "canCancel",
+            order.getStatus() == OrderStatus.PENDING_CONFIRMATION || order.getStatus() == OrderStatus.PAYMENT_IN_PROGRESS
+        );
+        model.addAttribute("canReview", order.getStatus() == OrderStatus.COMPLETED);
+        model.addAttribute("reviewedProductIds", reviewService.findReviewedProductIds(user.getId(), order.getId()));
         return "order-detail";
     }
 
@@ -60,6 +68,26 @@ public class OrderController {
         } catch (BusinessException | NotFoundException exception) {
             redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
         }
+        return "redirect:/orders/" + id;
+    }
+
+    @PostMapping("/orders/{id}/reviews")
+    public String createReview(
+        @PathVariable Integer id,
+        @RequestParam Integer productId,
+        @RequestParam Integer stars,
+        @RequestParam(required = false) String comment,
+        Authentication authentication,
+        RedirectAttributes redirectAttributes
+    ) {
+        User user = currentUser.requireUser(authentication);
+        try {
+            reviewService.createReview(user.getId(), id, productId, stars, comment);
+            redirectAttributes.addFlashAttribute("successMessage", "Da gui danh gia, vui long cho admin duyet");
+        } catch (BusinessException | NotFoundException exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
+        }
+
         return "redirect:/orders/" + id;
     }
 }

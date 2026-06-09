@@ -13,5 +13,13 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
     List<Review> findByStatus(ReviewStatus status);
 
+    List<Review> findByStatusOrderByCreatedAtDesc(ReviewStatus status);
+
+    List<Review> findAllByOrderByCreatedAtDesc();
+
+    List<Review> findByUserIdAndOrderId(Integer userId, Integer orderId);
+
+    boolean existsByUserIdAndOrderIdAndProductId(Integer userId, Integer orderId, Integer productId);
+
     long countByProductId(Integer productId);
 }

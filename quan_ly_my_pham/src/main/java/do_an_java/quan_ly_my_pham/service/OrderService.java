@@ -36,6 +36,7 @@ public class OrderService {
         ALLOWED_TRANSITIONS.put(OrderStatus.SHIPPING, Set.of(OrderStatus.COMPLETED));
         ALLOWED_TRANSITIONS.put(OrderStatus.COMPLETED, Set.of());
         ALLOWED_TRANSITIONS.put(OrderStatus.CANCELLED, Set.of());
+        ALLOWED_TRANSITIONS.put(OrderStatus.PAYMENT_IN_PROGRESS, Set.of(OrderStatus.PENDING_CONFIRMATION, OrderStatus.CONFIRMED, OrderStatus.CANCELLED));
     }
 
     private final OrderRepository orderRepository;
@@ -141,8 +142,7 @@ public class OrderService {
         order.setPayment(payment);
 
         Order savedOrder = orderRepository.save(order);
-        saveStatusHistory(savedOrder, null, OrderStatus.PENDING_CONFIRMATION, user, "Tao don hang");
-        promotionService.increaseUsedCount(discount.promotion());
+        saveStatusHistory(savedOrder, null, OrderStatus.PENDING_CONFIRMATION, user, "Tao don hang - cho admin xac nhan");
         cartService.clearCart(user.getId());
         return savedOrder;
     }
@@ -176,7 +176,7 @@ public class OrderService {
             throw new BusinessException("Ban khong co quyen huy don hang nay");
         }
 
-        if (order.getStatus() != OrderStatus.PENDING_CONFIRMATION) {
+        if (order.getStatus() != OrderStatus.PENDING_CONFIRMATION && order.getStatus() != OrderStatus.PAYMENT_IN_PROGRESS) {
             throw new BusinessException("Chi co the huy don khi don hang dang cho xac nhan");
         }
 

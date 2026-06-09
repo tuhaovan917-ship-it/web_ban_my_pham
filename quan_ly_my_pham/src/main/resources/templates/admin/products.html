@@ -1,95 +1,114 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Quan ly san pham</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; background: #f6f7f9; color: #222; }
-        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-        main { max-width: 1220px; margin: 24px auto; padding: 0 16px; }
-        section { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 16px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: middle; }
-        img { width: 64px; height: 64px; object-fit: cover; border: 1px solid #ddd; background: #f0f0f0; }
-        button, .button { padding: 8px 10px; cursor: pointer; border: 1px solid #777; background: #fff; color: #222; text-decoration: none; display: inline-block; }
-        form { display: inline; }
-        .message { padding: 10px; margin-bottom: 12px; border: 1px solid #b6d7b6; background: #eef6ee; }
-        .error { border-color: #e6b5b5; background: #fdecec; }
-        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-        a { color: #0066cc; text-decoration: none; }
-    </style>
-</head>
+<head th:replace="~{layout/fragments :: html_head('Quản lý sản phẩm')}"></head>
 <body>
-<header>
-    <strong>Admin - San pham</strong>
-    <nav>
-        <a th:href="@{/admin}">Dashboard</a>
-        <span> | </span>
-        <a th:href="@{/admin/orders}">Don hang</a>
-        <span> | </span>
-        <a th:href="@{/products}">Xem cua hang</a>
-    </nav>
-</header>
 
-<main>
-    <div class="message" th:if="${successMessage}" th:text="${successMessage}"></div>
-    <div class="message error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+<div class="admin-layout">
+    <!-- Sidebar dùng chung (activePage = 'products') -->
+    <aside th:replace="~{layout/fragments :: admin_sidebar('products')}"></aside>
+    
+    <div class="admin-main">
+        <!-- Top navbar của admin -->
+        <header class="admin-navbar">
+            <span style="font-weight: 700; color: var(--text-main); font-size: 1.1rem;">
+                <i class="fa-solid fa-bottle-droplet" style="color: var(--primary); margin-right: 8px;"></i>QUẢN LÝ SẢN PHẨM
+            </span>
+            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
+                GlowCosmetics &bull; Admin Panel
+            </div>
+        </header>
+        
+        <!-- Content chính -->
+        <main class="admin-container">
+            
+            <!-- Alert Messages -->
+            <div class="alert alert-success" th:if="${successMessage}">
+                <i class="fa-solid fa-circle-check"></i>
+                <span th:text="${successMessage}"></span>
+            </div>
+            <div class="alert alert-error" th:if="${errorMessage}">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${errorMessage}"></span>
+            </div>
 
-    <section>
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-            <h1>Quan ly san pham</h1>
-            <a class="button" th:href="@{/admin/products/new}">Them san pham</a>
-        </div>
+            <!-- Card danh sách sản phẩm -->
+            <section class="admin-card">
+                <div class="admin-section-header">
+                    <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--dark); margin: 0;">Danh sách sản phẩm</h2>
+                    <a class="btn btn-primary" th:href="@{/admin/products/new}">
+                        <i class="fa-solid fa-plus"></i> Thêm sản phẩm mới
+                    </a>
+                </div>
 
-        <table>
-            <thead>
-            <tr>
-                <th>Anh</th>
-                <th>Ten san pham</th>
-                <th>Danh muc</th>
-                <th>Thuong hieu</th>
-                <th>Gia</th>
-                <th>Ton kho</th>
-                <th>Noi bat</th>
-                <th>Trang thai</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="product : ${products}">
-                <td>
-                    <img th:if="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" th:src="@{${product.mainImagePath}}" th:alt="${product.name}">
-                    <span th:unless="${product.mainImagePath != null && !product.mainImagePath.isBlank()}">Chua co anh</span>
-                </td>
-                <td th:text="${product.name}"></td>
-                <td th:text="${product.category.name}"></td>
-                <td th:text="${product.brand != null ? product.brand.name : 'Khong co'}"></td>
-                <td>
-                    <div th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' VND'"></div>
-                    <small th:if="${product.salePrice != null}" th:text="'Sale: ' + ${#numbers.formatDecimal(product.salePrice, 0, 'COMMA', 0, 'POINT')} + ' VND'"></small>
-                </td>
-                <td th:text="${product.stockQuantity}"></td>
-                <td th:text="${product.featured ? 'Co' : 'Khong'}"></td>
-                <td th:text="${product.active ? 'Dang ban' : 'Tam an'}"></td>
-                <td>
-                    <div class="actions">
-                        <a class="button" th:href="@{/admin/products/{id}/edit(id=${product.id})}">Sua</a>
-                        <form th:action="@{/admin/products/{id}/toggle-active(id=${product.id})}" method="post">
-                            <button type="submit" th:text="${product.active ? 'Tam an' : 'Mo ban'}"></button>
-                        </form>
-                        <form th:action="@{/admin/products/{id}/delete(id=${product.id})}" method="post"
-                              onsubmit="return confirm('Ban chac chan muon xoa san pham nay?');">
-                            <button type="submit">Xoa</button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(products)}">
-                <td colspan="9">Chua co san pham.</td>
-            </tr>
-            </tbody>
-        </table>
-    </section>
-</main>
+                <div class="table-responsive">
+                    <table class="table-custom">
+                        <thead>
+                        <tr>
+                            <th style="width: 8%; text-align: center;">Ảnh</th>
+                            <th style="width: 27%;">Tên sản phẩm</th>
+                            <th style="width: 12%;">Danh mục</th>
+                            <th style="width: 12%;">Thương hiệu</th>
+                            <th style="width: 15%; text-align: right;">Đơn giá</th>
+                            <th style="width: 8%; text-align: center;">Tồn kho</th>
+                            <th style="width: 8%; text-align: center;">Nổi bật</th>
+                            <th style="width: 10%; text-align: center;">Trạng thái</th>
+                            <th style="width: 20%; text-align: center;">Thao tác</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="product : ${products}">
+                            <td style="text-align: center;">
+                                <div style="width: 50px; height: 50px; background: #f1f5f9; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border); display: inline-flex; align-items: center; justify-content: center;">
+                                    <img th:if="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" th:src="@{${product.mainImagePath}}" th:alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <i th:unless="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" class="fa-regular fa-image" style="color: var(--text-muted)"></i>
+                                </div>
+                            </td>
+                            <td>
+                                <strong th:text="${product.name}" style="color: var(--dark); font-size: 0.95rem;"></strong>
+                            </td>
+                            <td th:text="${product.category.name}"></td>
+                            <td th:text="${product.brand != null ? product.brand.name : 'Chính hãng'}"></td>
+                            <td style="text-align: right;">
+                                <div th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'" style="font-weight: 700; color: var(--dark);"></div>
+                                <small th:if="${product.salePrice != null}" th:text="'Khuyến mãi: ' + ${#numbers.formatDecimal(product.salePrice, 0, 'COMMA', 0, 'POINT')} + ' đ'" style="color: var(--error); font-weight: 600;"></small>
+                            </td>
+                            <td style="text-align: center; font-weight: 600;" th:text="${product.stockQuantity}" th:classappend="${product.stockQuantity < 5} ? 'low-stock' : ''"></td>
+                            <td style="text-align: center;">
+                                <i th:if="${product.featured}" class="fa-solid fa-circle-check" style="color: var(--success); font-size: 1.1rem;"></i>
+                                <i th:unless="${product.featured}" class="fa-regular fa-circle" style="color: var(--text-muted); font-size: 1.1rem;"></i>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="badge" th:classappend="${product.active} ? 'badge-completed' : 'badge-cancelled'" 
+                                      th:text="${product.active} ? 'Đang bán' : 'Tạm ẩn'"></span>
+                            </td>
+                            <td style="text-align: center;">
+                                <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                                    <a class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.8rem;" th:href="@{/admin/products/{id}/edit(id=${product.id})}">
+                                        <i class="fa-solid fa-pen-to-square"></i> Sửa
+                                    </a>
+                                    <form th:action="@{/admin/products/{id}/toggle-active(id=${product.id})}" method="post" style="display: inline;">
+                                        <button type="submit" class="btn btn-outline" style="padding: 6px 10px; font-size: 0.8rem; border-color: var(--text-muted); color: var(--text-main);" 
+                                                th:text="${product.active ? 'Ẩn' : 'Mở'}">Ẩn</button>
+                                    </form>
+                                    <form th:action="@{/admin/products/{id}/delete(id=${product.id})}" method="post"
+                                          onsubmit="return confirm('Bạn chắc chắn muốn xóa sản phẩm này?');" style="display: inline;">
+                                        <button type="submit" class="btn btn-danger" style="padding: 6px 10px; font-size: 0.8rem;">
+                                            <i class="fa-solid fa-trash-can"></i> Xóa
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(products)}">
+                            <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 20px;">Chưa có sản phẩm nào.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
 </body>
 </html>
