@@ -52,7 +52,7 @@ public class ProductController {
 
     @GetMapping("/product/{id}")
     public String productDetail(@PathVariable Integer id, Model model) {
-        Product product = productService.findById(id);
+        Product product = productService.findVisibleById(id);
         model.addAttribute("product", product);
         model.addAttribute("currentPrice", productService.currentPrice(product));
         model.addAttribute("reviews", reviewService.findApprovedByProduct(id));

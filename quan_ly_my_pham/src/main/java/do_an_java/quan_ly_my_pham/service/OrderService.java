@@ -143,6 +143,7 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(order);
         saveStatusHistory(savedOrder, null, OrderStatus.PENDING_CONFIRMATION, user, "Tao don hang - cho admin xac nhan");
+        promotionService.increaseUsedCount(savedOrder.getPromotion());
         cartService.clearCart(user.getId());
         return savedOrder;
     }
@@ -160,6 +161,11 @@ public class OrderService {
         if (changedByUserId != null) {
             changedBy = userRepository.findById(changedByUserId)
                 .orElseThrow(() -> new NotFoundException("Khong tim thay nguoi cap nhat"));
+        }
+
+        if (newStatus == OrderStatus.CANCELLED && oldStatus != OrderStatus.CANCELLED) {
+            restoreStock(order);
+            promotionService.decreaseUsedCount(order.getPromotion());
         }
 
         order.setStatus(newStatus);
@@ -180,7 +186,6 @@ public class OrderService {
             throw new BusinessException("Chi co the huy don khi don hang dang cho xac nhan");
         }
 
-        restoreStock(order);
         return updateStatus(orderId, OrderStatus.CANCELLED, userId, "Khach hang huy don");
     }
 

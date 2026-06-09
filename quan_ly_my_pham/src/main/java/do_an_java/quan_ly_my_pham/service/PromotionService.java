@@ -50,7 +50,18 @@ public class PromotionService {
             return;
         }
 
-        promotion.setUsedCount(promotion.getUsedCount() + 1);
+        int usedCount = promotion.getUsedCount() == null ? 0 : promotion.getUsedCount();
+        promotion.setUsedCount(usedCount + 1);
+        promotionRepository.save(promotion);
+    }
+
+    public void decreaseUsedCount(Promotion promotion) {
+        if (promotion == null) {
+            return;
+        }
+
+        int usedCount = promotion.getUsedCount() == null ? 0 : promotion.getUsedCount();
+        promotion.setUsedCount(Math.max(0, usedCount - 1));
         promotionRepository.save(promotion);
     }
 
@@ -69,6 +80,11 @@ public class PromotionService {
         validatePromotionForm(form, promotionId);
 
         Promotion promotion = findById(promotionId);
+        if (form.usageLimit() != null
+            && promotion.getUsedCount() != null
+            && form.usageLimit() < promotion.getUsedCount()) {
+            throw new BusinessException("Gioi han luot dung khong duoc nho hon so luot da su dung");
+        }
         applyPromotionForm(promotion, form);
         return promotionRepository.save(promotion);
     }
