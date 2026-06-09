@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<h1>Danh sách sản phẩm</h1>
+<table border="1">
+    <tr th:each="p : ${products}">
+        <td th:text="${p.name}"></td>
+        <td th:text="${p.price}"></td>
+    </tr>
+</table>
+</body>
+</html>
