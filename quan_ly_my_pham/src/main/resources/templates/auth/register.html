@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dang ky</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f7f7f7; }
+        main { max-width: 520px; margin: 0 auto; padding: 24px; background: #fff; border: 1px solid #ddd; }
+        label { display: block; margin-top: 12px; }
+        input { width: 100%; box-sizing: border-box; padding: 10px; margin-top: 4px; }
+        button { margin-top: 16px; padding: 10px 16px; cursor: pointer; }
+        .error { color: #b00020; font-size: 14px; margin-top: 4px; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Dang ky tai khoan</h1>
+    <div class="error" th:if="${registerError}" th:text="${registerError}"></div>
+
+    <form th:action="@{/register}" th:object="${registerRequest}" method="post">
+        <label for="userName">Ten dang nhap</label>
+        <input id="userName" th:field="*{userName}" type="text" required>
+        <div class="error" th:errors="*{userName}"></div>
+
+        <label for="password">Mat khau</label>
+        <input id="password" th:field="*{password}" type="password" required>
+        <div class="error" th:errors="*{password}"></div>
+
+        <label for="fullName">Ho ten</label>
+        <input id="fullName" th:field="*{fullName}" type="text" required>
+        <div class="error" th:errors="*{fullName}"></div>
+
+        <label for="email">Email</label>
+        <input id="email" th:field="*{email}" type="email" required>
+        <div class="error" th:errors="*{email}"></div>
+
+        <label for="phone">So dien thoai</label>
+        <input id="phone" th:field="*{phone}" type="text">
+        <div class="error" th:errors="*{phone}"></div>
+
+        <label for="address">Dia chi</label>
+        <input id="address" th:field="*{address}" type="text">
+        <div class="error" th:errors="*{address}"></div>
+
+        <button type="submit">Dang ky</button>
+    </form>
+
+    <p>Da co tai khoan? <a th:href="@{/login}">Dang nhap</a></p>
+</main>
+</body>
+</html>

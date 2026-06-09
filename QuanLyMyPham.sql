@@ -95,6 +95,7 @@ CREATE TABLE dbo.Products
     is_active        BIT               NOT NULL CONSTRAINT DF_Products_is_active DEFAULT (1),
     created_at       DATETIME2(0)      NOT NULL CONSTRAINT DF_Products_created_at DEFAULT (SYSDATETIME()),
     updated_at       DATETIME2(0)      NULL,
+    version          BIGINT            NOT NULL CONSTRAINT DF_Products_version DEFAULT (0),
     CONSTRAINT PK_Products PRIMARY KEY (product_id),
     CONSTRAINT FK_Products_Categories FOREIGN KEY (category_id) REFERENCES dbo.Categories(category_id),
     CONSTRAINT FK_Products_Brands FOREIGN KEY (brand_id) REFERENCES dbo.Brands(brand_id),

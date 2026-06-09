@@ -23,9 +23,7 @@ public class DashboardService {
     public DashboardSummary getSummary() {
         long totalOrders = orderRepository.count();
         long totalProducts = productRepository.count();
-        long totalCustomers = userRepository.findAll().stream()
-            .filter(user -> user.getRole() == UserRole.CUSTOMER)
-            .count();
+        long totalCustomers = userRepository.countByRole(UserRole.CUSTOMER);
         long lowStockProducts = productService.findLowStockProducts().size();
         BigDecimal completedRevenue = orderRepository.findByStatus(OrderStatus.COMPLETED).stream()
             .map(Order::getTotalAmount)

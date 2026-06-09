@@ -1,12 +1,73 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>San pham</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
+        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        main { max-width: 1120px; margin: 24px auto; padding: 0 16px; }
+        form.filter { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto; gap: 8px; padding: 16px; background: #fff; border: 1px solid #ddd; }
+        input, select, button { padding: 9px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-top: 20px; }
+        .product { background: #fff; border: 1px solid #ddd; padding: 14px; }
+        .image { width: 100%; aspect-ratio: 1; object-fit: cover; background: #eee; }
+        .name { font-weight: 700; margin: 10px 0 6px; }
+        .price { color: #b00020; font-weight: 700; }
+        .old-price { color: #777; text-decoration: line-through; margin-left: 6px; font-weight: 400; }
+        .stock { color: #555; font-size: 14px; }
+        a { color: #0066cc; text-decoration: none; }
+        .empty { padding: 24px; background: #fff; border: 1px solid #ddd; margin-top: 20px; }
+    </style>
+</head>
 <body>
-<h1>Danh sách sản phẩm</h1>
-<table border="1">
-    <tr th:each="p : ${products}">
-        <td th:text="${p.name}"></td>
-        <td th:text="${p.price}"></td>
-    </tr>
-</table>
+<header>
+    <strong>Quan Ly My Pham</strong>
+    <nav>
+        <a th:href="@{/products}">San pham</a>
+        <span> | </span>
+        <a th:href="@{/cart}">Gio hang</a>
+        <span> | </span>
+        <a th:href="@{/login}">Dang nhap</a>
+    </nav>
+</header>
+
+<main>
+    <h1>Danh sach san pham</h1>
+
+    <form class="filter" th:action="@{/products}" method="get">
+        <input name="keyword" type="text" placeholder="Tim theo ten san pham" th:value="${filter.keyword()}">
+        <input name="categoryId" type="number" placeholder="Ma danh muc" th:value="${filter.categoryId()}">
+        <input name="brandId" type="number" placeholder="Ma thuong hieu" th:value="${filter.brandId()}">
+        <input name="minPrice" type="number" min="0" placeholder="Gia tu" th:value="${filter.minPrice()}">
+        <input name="maxPrice" type="number" min="0" placeholder="Gia den" th:value="${filter.maxPrice()}">
+        <select name="sort">
+            <option value="newest" th:selected="${filter.sort() == null || filter.sort() == 'newest'}">Moi nhat</option>
+            <option value="price_asc" th:selected="${filter.sort() == 'price_asc'}">Gia tang</option>
+            <option value="price_desc" th:selected="${filter.sort() == 'price_desc'}">Gia giam</option>
+            <option value="name_asc" th:selected="${filter.sort() == 'name_asc'}">Ten A-Z</option>
+            <option value="name_desc" th:selected="${filter.sort() == 'name_desc'}">Ten Z-A</option>
+        </select>
+        <button type="submit">Loc</button>
+    </form>
+
+    <div class="empty" th:if="${#lists.isEmpty(products)}">Khong co san pham phu hop.</div>
+
+    <section class="grid" th:if="${!#lists.isEmpty(products)}">
+        <article class="product" th:each="p : ${products}">
+            <img class="image" th:if="${p.mainImagePath}" th:src="@{${p.mainImagePath}}" alt="">
+            <div class="image" th:unless="${p.mainImagePath}"></div>
+            <div class="name">
+                <a th:href="@{/product/{id}(id=${p.id})}" th:text="${p.name}"></a>
+            </div>
+            <div>
+                <span class="price" th:text="${#numbers.formatDecimal(p.salePrice != null ? p.salePrice : p.price, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
+                <span class="old-price" th:if="${p.salePrice != null}" th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
+            </div>
+            <p class="stock" th:text="'Ton kho: ' + ${p.stockQuantity}"></p>
+            <a th:href="@{/product/{id}(id=${p.id})}">Xem chi tiet</a>
+        </article>
+    </section>
+</main>
 </body>
 </html>

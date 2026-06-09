@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">San pham</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f6f7f9; color: #222; }
+        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        main { max-width: 920px; margin: 24px auto; padding: 0 16px; }
+        section { background: #fff; border: 1px solid #ddd; padding: 20px; }
+        label { display: block; font-weight: bold; margin: 14px 0 6px; }
+        input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #bbb; font: inherit; }
+        textarea { min-height: 120px; resize: vertical; }
+        button, .button { padding: 9px 14px; cursor: pointer; border: 1px solid #777; background: #fff; color: #222; text-decoration: none; display: inline-block; }
+        .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        .actions { display: flex; gap: 10px; margin-top: 18px; }
+        .message { padding: 10px; margin-bottom: 12px; border: 1px solid #e6b5b5; background: #fdecec; }
+        img { width: 140px; height: 140px; object-fit: cover; border: 1px solid #ddd; background: #f0f0f0; margin-top: 8px; }
+        a { color: #0066cc; text-decoration: none; }
+        @media (max-width: 720px) { .row { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<header>
+    <strong th:text="${pageTitle}">San pham</strong>
+    <nav>
+        <a th:href="@{/admin/products}">Danh sach san pham</a>
+        <span> | </span>
+        <a th:href="@{/admin}">Dashboard</a>
+    </nav>
+</header>
+
+<main>
+    <div class="message" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <section>
+        <h1 th:text="${pageTitle}">San pham</h1>
+        <form th:action="@{${actionUrl}}" method="post" enctype="multipart/form-data">
+            <div class="row">
+                <div>
+                    <label for="name">Ten san pham</label>
+                    <input id="name" name="name" type="text" maxlength="100" required
+                           th:value="${product != null ? product.name : ''}">
+                </div>
+                <div>
+                    <label for="categoryId">Danh muc</label>
+                    <select id="categoryId" name="categoryId" required>
+                        <option value="">Chon danh muc</option>
+                        <option th:each="category : ${categories}"
+                                th:value="${category.id}"
+                                th:selected="${product != null && product.category != null && product.category.id == category.id}"
+                                th:text="${category.name}">
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div>
+                    <label for="brandId">Thuong hieu</label>
+                    <select id="brandId" name="brandId">
+                        <option value="">Khong chon</option>
+                        <option th:each="brand : ${brands}"
+                                th:value="${brand.id}"
+                                th:selected="${product != null && product.brand != null && product.brand.id == brand.id}"
+                                th:text="${brand.name}">
+                        </option>
+                    </select>
+                </div>
+                <div>
+                    <label for="stockQuantity">So luong ton</label>
+                    <input id="stockQuantity" name="stockQuantity" type="number" min="0" required
+                           th:value="${product != null ? product.stockQuantity : 0}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div>
+                    <label for="price">Gia goc</label>
+                    <input id="price" name="price" type="number" min="0" step="1000" required
+                           th:value="${product != null ? product.price : ''}">
+                </div>
+                <div>
+                    <label for="salePrice">Gia khuyen mai</label>
+                    <input id="salePrice" name="salePrice" type="number" min="0" step="1000"
+                           th:value="${product != null && product.salePrice != null ? product.salePrice : ''}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div>
+                    <label for="featured">San pham noi bat</label>
+                    <select id="featured" name="featured">
+                        <option value="false" th:selected="${product == null || !product.featured}">Khong</option>
+                        <option value="true" th:selected="${product != null && product.featured}">Co</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="active">Trang thai</label>
+                    <select id="active" name="active">
+                        <option value="true" th:selected="${product == null || product.active}">Dang ban</option>
+                        <option value="false" th:selected="${product != null && !product.active}">Tam an</option>
+                    </select>
+                </div>
+            </div>
+
+            <label for="description">Mo ta</label>
+            <textarea id="description" name="description" th:text="${product != null ? product.description : ''}"></textarea>
+
+            <label for="imageFile">Anh dai dien</label>
+            <input id="imageFile" name="imageFile" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+            <div th:if="${product != null && product.mainImagePath != null && !product.mainImagePath.isBlank()}">
+                <img th:src="@{${product.mainImagePath}}" th:alt="${product.name}">
+            </div>
+
+            <div class="actions">
+                <button type="submit">Luu san pham</button>
+                <a class="button" th:href="@{/admin/products}">Huy</a>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

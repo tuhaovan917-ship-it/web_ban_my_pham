@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh toan</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
+        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        main { max-width: 1040px; margin: 24px auto; padding: 0 16px; display: grid; grid-template-columns: 1fr 360px; gap: 20px; }
+        section { background: #fff; border: 1px solid #ddd; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border-bottom: 1px solid #ddd; padding: 10px; text-align: left; }
+        label { display: block; margin-top: 12px; }
+        input, select, textarea, button { width: 100%; box-sizing: border-box; padding: 9px; margin-top: 4px; }
+        button { cursor: pointer; margin-top: 16px; }
+        .message { padding: 10px; margin-bottom: 12px; border: 1px solid #e6b5b5; background: #fdecec; grid-column: 1 / -1; }
+        .summary-row { display: flex; justify-content: space-between; margin: 10px 0; }
+        a { color: #0066cc; text-decoration: none; }
+    </style>
+</head>
+<body>
+<header>
+    <strong>Quan Ly My Pham</strong>
+    <nav>
+        <a th:href="@{/cart}">Gio hang</a>
+        <span> | </span>
+        <a th:href="@{/products}">San pham</a>
+    </nav>
+</header>
+
+<main>
+    <div class="message" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <section>
+        <h1>Thong tin giao hang</h1>
+        <form th:action="@{/checkout}" method="post">
+            <label for="receiverName">Nguoi nhan</label>
+            <input id="receiverName" name="receiverName" type="text" required th:value="${user.fullName}">
+
+            <label for="receiverPhone">So dien thoai</label>
+            <input id="receiverPhone" name="receiverPhone" type="text" required th:value="${user.phone}">
+
+            <label for="shippingAddress">Dia chi giao hang</label>
+            <input id="shippingAddress" name="shippingAddress" type="text" required th:value="${user.address}">
+
+            <label for="paymentMethod">Phuong thuc thanh toan</label>
+            <select id="paymentMethod" name="paymentMethod" required>
+                <option th:each="method : ${paymentMethods}" th:value="${method}" th:text="${method}"></option>
+            </select>
+
+            <label for="promotionCode">Ma khuyen mai</label>
+            <input id="promotionCode" name="promotionCode" type="text" placeholder="VD: WELCOME10">
+
+            <label for="shippingFee">Phi giao hang</label>
+            <input id="shippingFee" name="shippingFee" type="number" min="0" th:value="${shippingFee}">
+
+            <label for="note">Ghi chu</label>
+            <textarea id="note" name="note" rows="3"></textarea>
+
+            <button type="submit">Dat hang</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Don hang</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>San pham</th>
+                <th>SL</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${items}">
+                <td th:text="${item.product.name}"></td>
+                <td th:text="${item.quantity}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="summary-row">
+            <span>Tam tinh</span>
+            <strong th:text="${#numbers.formatDecimal(subtotal, 0, 'COMMA', 0, 'POINT')} + ' VND'"></strong>
+        </div>
+        <div class="summary-row">
+            <span>Phi giao hang</span>
+            <strong th:text="${#numbers.formatDecimal(shippingFee, 0, 'COMMA', 0, 'POINT')} + ' VND'"></strong>
+        </div>
+    </section>
+</main>
+</body>
+</html>

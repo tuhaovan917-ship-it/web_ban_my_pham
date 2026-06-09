@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -92,4 +93,8 @@ public class Product {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Review> reviews = new ArrayList<>();
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version = 0L;
 }

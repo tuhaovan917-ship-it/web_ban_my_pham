@@ -23,10 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +50,10 @@ public class OrderService {
         return orderRepository.findByUserIdOrderByOrderDateDesc(userId);
     }
 
+    public List<Order> findAllOrders() {
+        return orderRepository.findAllByOrderByOrderDateDesc();
+    }
+
     public List<Order> findOrdersByStatus(OrderStatus status) {
         return orderRepository.findByStatus(status);
     }
@@ -76,6 +77,8 @@ public class OrderService {
         if (items.isEmpty()) {
             throw new BusinessException("Gio hang dang trong");
         }
+
+        List<Product> productsToUpdate = new ArrayList<>();
 
         BigDecimal subtotal = BigDecimal.ZERO;
         for (CartItem item : items) {
@@ -125,8 +128,10 @@ public class OrderService {
 
             product.setStockQuantity(product.getStockQuantity() - item.getQuantity());
             product.setUpdatedAt(LocalDateTime.now());
-            productRepository.save(product);
+            productsToUpdate.add(product);
         }
+
+        productRepository.saveAll(productsToUpdate);
 
         Payment payment = new Payment();
         payment.setOrder(order);

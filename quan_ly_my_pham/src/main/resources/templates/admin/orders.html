@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quan ly don hang</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f6f7f9; color: #222; }
+        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        main { max-width: 1180px; margin: 24px auto; padding: 0 16px; }
+        section { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 16px; }
+        form { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
+        select, button { padding: 8px 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        a { color: #0066cc; text-decoration: none; }
+    </style>
+</head>
+<body>
+<header>
+    <strong>Admin - Don hang</strong>
+    <nav>
+        <a th:href="@{/admin}">Dashboard</a>
+        <span> | </span>
+        <a th:href="@{/products}">Xem cua hang</a>
+    </nav>
+</header>
+
+<main>
+    <section>
+        <h1>Quan ly don hang</h1>
+        <form th:action="@{/admin/orders}" method="get">
+            <label for="status">Trang thai</label>
+            <select id="status" name="status">
+                <option value="">Tat ca</option>
+                <option th:each="status : ${statuses}"
+                        th:value="${status}"
+                        th:selected="${status == selectedStatus}"
+                        th:text="${status}">
+                </option>
+            </select>
+            <button type="submit">Loc</button>
+        </form>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Ma don</th>
+                <th>Khach hang</th>
+                <th>Ngay dat</th>
+                <th>Nguoi nhan</th>
+                <th>Trang thai</th>
+                <th>Tong tien</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}">
+                <td th:text="${order.id}"></td>
+                <td th:text="${order.user.fullName}"></td>
+                <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${order.receiverName}"></td>
+                <td th:text="${order.status}"></td>
+                <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+                <td><a th:href="@{/admin/orders/{id}(id=${order.id})}">Chi tiet</a></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(orders)}">
+                <td colspan="7">Khong co don hang phu hop.</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

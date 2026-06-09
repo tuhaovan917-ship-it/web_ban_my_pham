@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiet don hang admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f6f7f9; color: #222; }
+        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        main { max-width: 1080px; margin: 24px auto; padding: 0 16px; }
+        section { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 16px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        select, input, button { padding: 8px 10px; }
+        form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .message { padding: 10px; margin-bottom: 12px; border: 1px solid #b6d7b6; background: #eef6ee; }
+        .error { border-color: #e6b5b5; background: #fdecec; }
+        .summary-row { display: flex; justify-content: space-between; margin: 8px 0; }
+        a { color: #0066cc; text-decoration: none; }
+    </style>
+</head>
+<body>
+<header>
+    <strong>Admin - Don hang</strong>
+    <nav>
+        <a th:href="@{/admin/orders}">Danh sach don</a>
+        <span> | </span>
+        <a th:href="@{/admin}">Dashboard</a>
+    </nav>
+</header>
+
+<main>
+    <div class="message" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="message error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <section>
+        <h1 th:text="'Don hang #' + ${order.id}"></h1>
+        <p th:text="'Khach hang: ' + ${order.user.fullName} + ' (' + ${order.user.userName} + ')'"></p>
+        <p th:text="'Trang thai hien tai: ' + ${order.status}"></p>
+        <p th:text="'Ngay dat: ' + ${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></p>
+        <p th:text="'Nguoi nhan: ' + ${order.receiverName}"></p>
+        <p th:text="'So dien thoai: ' + ${order.receiverPhone}"></p>
+        <p th:text="'Dia chi: ' + ${order.shippingAddress}"></p>
+        <p th:text="'Thanh toan: ' + ${order.paymentMethod}"></p>
+        <p th:if="${order.note}" th:text="'Ghi chu: ' + ${order.note}"></p>
+    </section>
+
+    <section>
+        <h2>Cap nhat trang thai</h2>
+        <form th:action="@{/admin/orders/{id}/status(id=${order.id})}" method="post">
+            <label for="status">Trang thai moi</label>
+            <select id="status" name="status" required>
+                <option th:each="status : ${statuses}"
+                        th:value="${status}"
+                        th:selected="${status == order.status}"
+                        th:text="${status}">
+                </option>
+            </select>
+            <input type="text" name="note" placeholder="Ghi chu cap nhat">
+            <button type="submit">Cap nhat</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>San pham</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>San pham</th>
+                <th>Don gia</th>
+                <th>So luong</th>
+                <th>Thanh tien</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="detail : ${order.orderDetails}">
+                <td th:text="${detail.productName}"></td>
+                <td th:text="${#numbers.formatDecimal(detail.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+                <td th:text="${detail.quantity}"></td>
+                <td th:text="${#numbers.formatDecimal(detail.lineTotal, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>Tong ket</h2>
+        <div class="summary-row">
+            <span>Tam tinh</span>
+            <strong th:text="${#numbers.formatDecimal(order.subtotalAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></strong>
+        </div>
+        <div class="summary-row">
+            <span>Giam gia</span>
+            <strong th:text="${#numbers.formatDecimal(order.discountAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></strong>
+        </div>
+        <div class="summary-row">
+            <span>Phi giao hang</span>
+            <strong th:text="${#numbers.formatDecimal(order.shippingFee, 0, 'COMMA', 0, 'POINT')} + ' VND'"></strong>
+        </div>
+        <div class="summary-row">
+            <span>Tong tien</span>
+            <strong th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></strong>
+        </div>
+    </section>
+</main>
+</body>
+</html>
