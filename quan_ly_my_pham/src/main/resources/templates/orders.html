@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lich su don hang</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
+        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        main { max-width: 1040px; margin: 24px auto; padding: 0 16px; }
+        table { width: 100%; border-collapse: collapse; background: #fff; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .message { padding: 10px; margin-bottom: 12px; border: 1px solid #b6d7b6; background: #eef6ee; }
+        .error { border-color: #e6b5b5; background: #fdecec; }
+        a { color: #0066cc; text-decoration: none; }
+    </style>
+</head>
+<body>
+<header>
+    <strong>Quan Ly My Pham</strong>
+    <nav>
+        <a th:href="@{/products}">San pham</a>
+        <span> | </span>
+        <a th:href="@{/cart}">Gio hang</a>
+    </nav>
+</header>
+
+<main>
+    <h1>Lich su don hang</h1>
+    <div class="message" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="message error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <p th:if="${#lists.isEmpty(orders)}">Ban chua co don hang nao.</p>
+
+    <table th:if="${!#lists.isEmpty(orders)}">
+        <thead>
+        <tr>
+            <th>Ma don</th>
+            <th>Ngay dat</th>
+            <th>Trang thai</th>
+            <th>Tong tien</th>
+            <th>Thao tac</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.id}"></td>
+            <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
+            <td th:text="${order.status}"></td>
+            <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+            <td><a th:href="@{/orders/{id}(id=${order.id})}">Chi tiet</a></td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

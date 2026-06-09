@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gio hang</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
+        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        main { max-width: 960px; margin: 24px auto; padding: 0 16px; }
+        table { width: 100%; border-collapse: collapse; background: #fff; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        input, button { padding: 8px; }
+        .message { padding: 10px; margin-bottom: 12px; border: 1px solid #b6d7b6; background: #eef6ee; }
+        .error { border-color: #e6b5b5; background: #fdecec; }
+        a { color: #0066cc; text-decoration: none; }
+    </style>
+</head>
+<body>
+<header>
+    <strong>Quan Ly My Pham</strong>
+    <nav>
+        <a th:href="@{/products}">Tiep tuc mua hang</a>
+        <span> | </span>
+        <a th:href="@{/orders}">Don hang</a>
+    </nav>
+</header>
+
+<main>
+    <h1>Gio hang</h1>
+    <div class="message" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="message error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <p th:if="${#lists.isEmpty(items)}">Gio hang dang trong.</p>
+
+    <table th:if="${!#lists.isEmpty(items)}">
+        <thead>
+        <tr>
+            <th>San pham</th>
+            <th>So luong</th>
+            <th>Ton kho</th>
+            <th>Thao tac</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${items}">
+            <td>
+                <a th:href="@{/product/{id}(id=${item.product.id})}" th:text="${item.product.name}"></a>
+            </td>
+            <td>
+                <form th:action="@{/cart/update}" method="post">
+                    <input type="hidden" name="productId" th:value="${item.product.id}">
+                    <input type="number" name="quantity" min="1" th:max="${item.product.stockQuantity}" th:value="${item.quantity}">
+                    <button type="submit">Cap nhat</button>
+                </form>
+            </td>
+            <td th:text="${item.product.stockQuantity}"></td>
+            <td>
+                <form th:action="@{/cart/remove}" method="post">
+                    <input type="hidden" name="productId" th:value="${item.product.id}">
+                    <button type="submit">Xoa</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p th:if="${!#lists.isEmpty(items)}">
+        <a th:href="@{/checkout}">Thanh toan</a>
+    </p>
+</main>
+</body>
+</html>

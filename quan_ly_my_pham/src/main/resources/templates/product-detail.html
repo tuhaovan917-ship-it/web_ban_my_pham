@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${product.name}">Chi tiet san pham</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
+        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        main { max-width: 960px; margin: 24px auto; padding: 0 16px; }
+        .detail { display: grid; grid-template-columns: 360px 1fr; gap: 24px; background: #fff; border: 1px solid #ddd; padding: 20px; }
+        .image { width: 100%; aspect-ratio: 1; object-fit: cover; background: #eee; }
+        .price { color: #b00020; font-size: 24px; font-weight: 700; }
+        .old-price { color: #777; text-decoration: line-through; margin-left: 8px; }
+        input, button { padding: 9px; }
+        .message { padding: 10px; margin-bottom: 12px; border: 1px solid #b6d7b6; background: #eef6ee; }
+        .error { border-color: #e6b5b5; background: #fdecec; }
+        .reviews { margin-top: 20px; background: #fff; border: 1px solid #ddd; padding: 20px; }
+        a { color: #0066cc; text-decoration: none; }
+    </style>
+</head>
+<body>
+<header>
+    <strong>Quan Ly My Pham</strong>
+    <nav>
+        <a th:href="@{/products}">San pham</a>
+        <span> | </span>
+        <a th:href="@{/cart}">Gio hang</a>
+    </nav>
+</header>
+
+<main>
+    <div class="message" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="message error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <section class="detail">
+        <img class="image" th:if="${product.mainImagePath}" th:src="@{${product.mainImagePath}}" alt="">
+        <div class="image" th:unless="${product.mainImagePath}"></div>
+
+        <div>
+            <h1 th:text="${product.name}"></h1>
+            <p>
+                <span class="price" th:text="${#numbers.formatDecimal(currentPrice, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
+                <span class="old-price" th:if="${product.salePrice != null}" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
+            </p>
+            <p th:text="'Ton kho: ' + ${product.stockQuantity}"></p>
+            <p th:text="${product.description}"></p>
+
+            <form th:action="@{/cart/add}" method="post">
+                <input type="hidden" name="productId" th:value="${product.id}">
+                <input type="number" name="quantity" value="1" min="1" th:max="${product.stockQuantity}">
+                <button type="submit" th:disabled="${product.stockQuantity <= 0}">Them vao gio</button>
+            </form>
+        </div>
+    </section>
+
+    <section class="reviews">
+        <h2>Danh gia</h2>
+        <p th:if="${#lists.isEmpty(reviews)}">Chua co danh gia da duyet.</p>
+        <article th:each="r : ${reviews}">
+            <strong th:text="${r.stars} + ' sao'"></strong>
+            <p th:text="${r.comment}"></p>
+        </article>
+    </section>
+</main>
+</body>
+</html>

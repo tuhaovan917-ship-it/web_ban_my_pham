@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f6f7f9; color: #222; }
+        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        main { max-width: 1180px; margin: 24px auto; padding: 0 16px; }
+        section { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 16px; }
+        .stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+        .stat { border: 1px solid #ddd; padding: 14px; background: #fafafa; }
+        .stat span { display: block; color: #666; font-size: 13px; margin-bottom: 8px; }
+        .stat strong { font-size: 22px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        a { color: #0066cc; text-decoration: none; }
+        @media (max-width: 860px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    </style>
+</head>
+<body>
+<header>
+    <strong>Admin - Quan Ly My Pham</strong>
+    <nav>
+        <a th:href="@{/admin/products}">San pham</a>
+        <span> | </span>
+        <a th:href="@{/admin/orders}">Don hang</a>
+        <span> | </span>
+        <a th:href="@{/products}">Xem cua hang</a>
+    </nav>
+</header>
+
+<main>
+    <section>
+        <h1>Tong quan</h1>
+        <div class="stats">
+            <div class="stat">
+                <span>Don hang</span>
+                <strong th:text="${summary.totalOrders}"></strong>
+            </div>
+            <div class="stat">
+                <span>Khach hang</span>
+                <strong th:text="${summary.totalCustomers}"></strong>
+            </div>
+            <div class="stat">
+                <span>San pham</span>
+                <strong th:text="${summary.totalProducts}"></strong>
+            </div>
+            <div class="stat">
+                <span>Gan het hang</span>
+                <strong th:text="${summary.lowStockProducts}"></strong>
+            </div>
+            <div class="stat">
+                <span>Doanh thu hoan thanh</span>
+                <strong th:text="${#numbers.formatDecimal(summary.completedRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'"></strong>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Don hang moi</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Ma don</th>
+                <th>Khach hang</th>
+                <th>Ngay dat</th>
+                <th>Trang thai</th>
+                <th>Tong tien</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${recentOrders}">
+                <td th:text="${order.id}"></td>
+                <td th:text="${order.user.fullName}"></td>
+                <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${order.status}"></td>
+                <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+                <td><a th:href="@{/admin/orders/{id}(id=${order.id})}">Chi tiet</a></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(recentOrders)}">
+                <td colspan="6">Chua co don hang.</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>Canh bao ton kho</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>San pham</th>
+                <th>Thuong hieu</th>
+                <th>Ton kho</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="product : ${lowStockProducts}">
+                <td th:text="${product.name}"></td>
+                <td th:text="${product.brand != null ? product.brand.name : 'Khong co'}"></td>
+                <td th:text="${product.stockQuantity}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(lowStockProducts)}">
+                <td colspan="3">Khong co san pham sap het hang.</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

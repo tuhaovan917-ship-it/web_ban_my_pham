@@ -1,6 +1,7 @@
 package do_an_java.quan_ly_my_pham.repository;
 
 import do_an_java.quan_ly_my_pham.model.User;
+import do_an_java.quan_ly_my_pham.model.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     boolean existsByEmail(String email);
 
     boolean existsByUserName(String userName);
+
+    long countByRole(UserRole role);
 }

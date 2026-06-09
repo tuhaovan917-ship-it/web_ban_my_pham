@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quan ly san pham</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f6f7f9; color: #222; }
+        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        main { max-width: 1220px; margin: 24px auto; padding: 0 16px; }
+        section { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 16px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: middle; }
+        img { width: 64px; height: 64px; object-fit: cover; border: 1px solid #ddd; background: #f0f0f0; }
+        button, .button { padding: 8px 10px; cursor: pointer; border: 1px solid #777; background: #fff; color: #222; text-decoration: none; display: inline-block; }
+        form { display: inline; }
+        .message { padding: 10px; margin-bottom: 12px; border: 1px solid #b6d7b6; background: #eef6ee; }
+        .error { border-color: #e6b5b5; background: #fdecec; }
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        a { color: #0066cc; text-decoration: none; }
+    </style>
+</head>
+<body>
+<header>
+    <strong>Admin - San pham</strong>
+    <nav>
+        <a th:href="@{/admin}">Dashboard</a>
+        <span> | </span>
+        <a th:href="@{/admin/orders}">Don hang</a>
+        <span> | </span>
+        <a th:href="@{/products}">Xem cua hang</a>
+    </nav>
+</header>
+
+<main>
+    <div class="message" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="message error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <section>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <h1>Quan ly san pham</h1>
+            <a class="button" th:href="@{/admin/products/new}">Them san pham</a>
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Anh</th>
+                <th>Ten san pham</th>
+                <th>Danh muc</th>
+                <th>Thuong hieu</th>
+                <th>Gia</th>
+                <th>Ton kho</th>
+                <th>Noi bat</th>
+                <th>Trang thai</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="product : ${products}">
+                <td>
+                    <img th:if="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" th:src="@{${product.mainImagePath}}" th:alt="${product.name}">
+                    <span th:unless="${product.mainImagePath != null && !product.mainImagePath.isBlank()}">Chua co anh</span>
+                </td>
+                <td th:text="${product.name}"></td>
+                <td th:text="${product.category.name}"></td>
+                <td th:text="${product.brand != null ? product.brand.name : 'Khong co'}"></td>
+                <td>
+                    <div th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' VND'"></div>
+                    <small th:if="${product.salePrice != null}" th:text="'Sale: ' + ${#numbers.formatDecimal(product.salePrice, 0, 'COMMA', 0, 'POINT')} + ' VND'"></small>
+                </td>
+                <td th:text="${product.stockQuantity}"></td>
+                <td th:text="${product.featured ? 'Co' : 'Khong'}"></td>
+                <td th:text="${product.active ? 'Dang ban' : 'Tam an'}"></td>
+                <td>
+                    <div class="actions">
+                        <a class="button" th:href="@{/admin/products/{id}/edit(id=${product.id})}">Sua</a>
+                        <form th:action="@{/admin/products/{id}/toggle-active(id=${product.id})}" method="post">
+                            <button type="submit" th:text="${product.active ? 'Tam an' : 'Mo ban'}"></button>
+                        </form>
+                        <form th:action="@{/admin/products/{id}/delete(id=${product.id})}" method="post"
+                              onsubmit="return confirm('Ban chac chan muon xoa san pham nay?');">
+                            <button type="submit">Xoa</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(products)}">
+                <td colspan="9">Chua co san pham.</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>
