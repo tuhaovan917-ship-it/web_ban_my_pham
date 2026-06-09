@@ -1,56 +1,84 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Lich su don hang</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
-        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-        main { max-width: 1040px; margin: 24px auto; padding: 0 16px; }
-        table { width: 100%; border-collapse: collapse; background: #fff; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        .message { padding: 10px; margin-bottom: 12px; border: 1px solid #b6d7b6; background: #eef6ee; }
-        .error { border-color: #e6b5b5; background: #fdecec; }
-        a { color: #0066cc; text-decoration: none; }
-    </style>
-</head>
+<head th:replace="~{layout/fragments :: html_head('Lịch sử đơn hàng')}"></head>
 <body>
-<header>
-    <strong>Quan Ly My Pham</strong>
-    <nav>
-        <a th:href="@{/products}">San pham</a>
-        <span> | </span>
-        <a th:href="@{/cart}">Gio hang</a>
-    </nav>
-</header>
 
-<main>
-    <h1>Lich su don hang</h1>
-    <div class="message" th:if="${successMessage}" th:text="${successMessage}"></div>
-    <div class="message error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+<!-- Header dùng chung -->
+<header th:replace="~{layout/fragments :: header('orders')}"></header>
 
-    <p th:if="${#lists.isEmpty(orders)}">Ban chua co don hang nao.</p>
+<main class="container">
+    <div style="border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 24px;">
+        <h1 style="font-weight: 800; color: var(--dark); font-size: 2rem;">
+            <i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i> Lịch sử đơn hàng
+        </h1>
+    </div>
 
-    <table th:if="${!#lists.isEmpty(orders)}">
-        <thead>
-        <tr>
-            <th>Ma don</th>
-            <th>Ngay dat</th>
-            <th>Trang thai</th>
-            <th>Tong tien</th>
-            <th>Thao tac</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="order : ${orders}">
-            <td th:text="${order.id}"></td>
-            <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
-            <td th:text="${order.status}"></td>
-            <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
-            <td><a th:href="@{/orders/{id}(id=${order.id})}">Chi tiet</a></td>
-        </tr>
-        </tbody>
-    </table>
+    <!-- Alert Messages -->
+    <div class="alert alert-success" th:if="${successMessage}">
+        <i class="fa-solid fa-circle-check"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+    <div class="alert alert-error" th:if="${errorMessage}">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- Chưa có đơn hàng -->
+    <div th:if="${#lists.isEmpty(orders)}" class="alert alert-secondary" style="text-align: center; justify-content: center; padding: 40px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md);">
+        <div style="margin-bottom: 16px; color: var(--text-muted);">
+            <i class="fa-solid fa-receipt fa-3x" style="opacity: 0.5;"></i>
+        </div>
+        <h3 style="font-weight: 700; color: var(--dark); margin-bottom: 8px;">Bạn chưa có đơn hàng nào</h3>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Những sản phẩm làm đẹp cao cấp đang chờ bạn khám phá.</p>
+        <a th:href="@{/products}" class="btn btn-primary">
+            <i class="fa-solid fa-bag-shopping"></i> Mua sắm ngay
+        </a>
+    </div>
+
+    <!-- Danh sách đơn hàng -->
+    <div th:if="${!#lists.isEmpty(orders)}" class="table-responsive">
+        <table class="table-custom">
+            <thead>
+            <tr>
+                <th style="width: 15%; text-align: center;">Mã đơn</th>
+                <th style="width: 25%;">Ngày đặt</th>
+                <th style="width: 25%; text-align: center;">Trạng thái</th>
+                <th style="width: 20%; text-align: right;">Tổng thanh toán</th>
+                <th style="width: 15%; text-align: center;">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}">
+                <td style="text-align: center; font-weight: 700; color: var(--dark);" th:text="'#' + ${order.id}"></td>
+                <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
+                <td style="text-align: center;">
+                    <!-- Trạng thái đơn hàng với Badge màu sắc tương ứng -->
+                    <span class="badge" th:classappend="${
+                        order.status == 'PENDING_CONFIRMATION' ? 'badge-pending' : (
+                        order.status == 'CONFIRMED' ? 'badge-confirmed' : (
+                        order.status == 'SHIPPING' ? 'badge-shipping' : (
+                        order.status == 'COMPLETED' ? 'badge-completed' : 'badge-cancelled')))
+                    }" th:text="${
+                        order.status == 'PENDING_CONFIRMATION' ? 'Chờ xác nhận' : (
+                        order.status == 'CONFIRMED' ? 'Đã xác nhận' : (
+                        order.status == 'SHIPPING' ? 'Đang giao hàng' : (
+                        order.status == 'COMPLETED' ? 'Đã hoàn thành' : 'Đã hủy')))
+                    }">Trạng thái</span>
+                </td>
+                <td style="text-align: right; font-weight: 800; color: var(--primary-dark);" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                <td style="text-align: center;">
+                    <a th:href="@{/orders/{id}(id=${order.id})}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;">
+                        <i class="fa-solid fa-circle-info"></i> Chi tiết
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </main>
+
+<!-- Footer dùng chung -->
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+
 </body>
 </html>

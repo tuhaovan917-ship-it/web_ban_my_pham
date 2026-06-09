@@ -46,7 +46,10 @@ public class OrderController {
         }
 
         model.addAttribute("order", order);
-        model.addAttribute("canCancel", order.getStatus() == OrderStatus.PENDING_CONFIRMATION);
+        model.addAttribute(
+            "canCancel",
+            order.getStatus() == OrderStatus.PENDING_CONFIRMATION || order.getStatus() == OrderStatus.PAYMENT_IN_PROGRESS
+        );
         model.addAttribute("canReview", order.getStatus() == OrderStatus.COMPLETED);
         model.addAttribute("reviewedProductIds", reviewService.findReviewedProductIds(user.getId(), order.getId()));
         return "order-detail";

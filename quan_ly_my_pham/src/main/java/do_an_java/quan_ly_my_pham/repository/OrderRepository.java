@@ -1,6 +1,7 @@
 package do_an_java.quan_ly_my_pham.repository;
 
 import do_an_java.quan_ly_my_pham.model.Order;
+import java.time.LocalDateTime;
 import do_an_java.quan_ly_my_pham.model.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -14,4 +15,5 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<Order> findAllByOrderByOrderDateDesc();
 
     List<Order> findByStatus(OrderStatus status);
+    List<Order> findByStatusAndCreatedAtBefore(OrderStatus status, LocalDateTime time);
 }

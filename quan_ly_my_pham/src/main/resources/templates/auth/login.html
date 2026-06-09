@@ -1,41 +1,40 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Dang nhap</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; background: #f7f7f7; }
-        main { max-width: 420px; margin: 0 auto; padding: 24px; background: #fff; border: 1px solid #ddd; }
-        label { display: block; margin-top: 12px; }
-        input { width: 100%; box-sizing: border-box; padding: 10px; margin-top: 4px; }
-        button { margin-top: 16px; padding: 10px 16px; cursor: pointer; }
-        .message { padding: 10px; margin-bottom: 12px; background: #eef6ee; border: 1px solid #b6d7b6; }
-        .error { background: #fdecec; border-color: #e6b5b5; }
-    </style>
-</head>
+<head th:replace="~{layout/fragments :: html_head('Đăng nhập')}"></head>
 <body>
-<main>
-    <h1>Dang nhap</h1>
-    <div class="message" th:if="${param.registered}">Dang ky thanh cong. Ban co the dang nhap.</div>
-    <div class="message" th:if="${param.logout}">Ban da dang xuat.</div>
-    <div class="message error" th:if="${param.error}">Sai ten dang nhap, mat khau hoac tai khoan dang bi khoa.</div>
-
-    <form th:action="@{/login}" method="post">
-        <label for="username">Ten dang nhap</label>
-        <input id="username" name="username" type="text" autocomplete="username" required>
-
-        <label for="password">Mat khau</label>
-        <input id="password" name="password" type="password" autocomplete="current-password" required>
-
-        <label>
-            <input name="remember-me" type="checkbox" style="width:auto"> Ghi nho dang nhap
-        </label>
-
-        <button type="submit">Dang nhap</button>
+<header th:replace="~{layout/fragments :: header('login')}"></header>
+<main class="container" style="display:flex;justify-content:center;align-items:center;min-height:80vh;">
+  <section class="glass-card fade-in" style="padding:32px;max-width:400px;width:100%;border-radius:16px;">
+    <h2 style="text-align:center;margin-bottom:24px;font-weight:800;color:var(--primary-dark);">Đăng nhập</h2>
+    <div class="message" th:if="${param.registered}" style="background:#e6f4ea;color:#166534;border:1px solid #a7f3d0;padding:10px;margin-bottom:12px;">
+        Đăng ký thành công. Bạn có thể đăng nhập.
+    </div>
+    <div class="message error" th:if="${param.error}" style="background:#fdecea;color:#b91c1c;border:1px solid #fca5a5;padding:10px;margin-bottom:12px;">
+        Sai tên đăng nhập, mật khẩu hoặc tài khoản bị khóa.
+    </div>
+    <form th:action="@{/login}" method="post" style="display:flex;flex-direction:column;gap:16px;">
+      <div>
+        <label for="username">Tên đăng nhập</label>
+        <input id="username" name="username" type="text" autocomplete="username" required style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);"/>
+      </div>
+      <div>
+        <label for="password">Mật khẩu</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);"/>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input id="remember-me" name="remember-me" type="checkbox" style="width:auto;"/>
+        <label for="remember-me">Ghi nhớ đăng nhập</label>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Đăng nhập</button>
     </form>
-
-    <p>Chua co tai khoan? <a th:href="@{/register}">Dang ky</a></p>
-    <p><a th:href="@{/products}">Quay lai san pham</a></p>
+    <p style="margin-top:16px;text-align:center;">
+      Chưa có tài khoản? <a th:href="@{/register}" class="btn btn-outline" style="margin-left:8px;">Đăng ký</a>
+    </p>
+    <p style="margin-top:8px;text-align:center;">
+      <a th:href="@{/products}" class="btn btn-outline" style="margin-left:8px;">Quay lại cửa hàng</a>
+    </p>
+  </section>
 </main>
+<footer th:replace="~{layout/fragments :: footer}"></footer>
 </body>
 </html>

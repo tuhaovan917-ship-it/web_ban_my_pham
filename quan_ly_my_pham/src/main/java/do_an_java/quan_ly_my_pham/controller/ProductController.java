@@ -20,8 +20,10 @@ public class ProductController {
     private final ReviewService reviewService;
 
     @GetMapping("/")
-    public String home() {
-        return "redirect:/products";
+    public String home(Model model) {
+        model.addAttribute("newestProducts", productService.findNewestProducts());
+        model.addAttribute("featuredProducts", productService.findFeaturedProducts());
+        return "home";
     }
 
     @GetMapping("/home")

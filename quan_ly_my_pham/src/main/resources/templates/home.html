@@ -1,74 +1,114 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Trang chu khach hang</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
-        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-        main { max-width: 1120px; margin: 24px auto; padding: 0 16px; }
-        .nav { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .nav a, .nav button, .actions a { padding: 9px 12px; border: 1px solid #777; background: #fff; color: #222; text-decoration: none; cursor: pointer; }
-        .nav form { display: inline; margin: 0; }
-        .hero, section { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 16px; }
-        .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
-        .product { border: 1px solid #ddd; padding: 12px; background: #fafafa; }
-        .image { width: 100%; aspect-ratio: 1; object-fit: cover; background: #eee; }
-        .price { color: #b00020; font-weight: 700; }
-        a { color: #0066cc; text-decoration: none; }
-    </style>
-</head>
+<head th:replace="~{layout/fragments :: html_head('Trang chủ')}"></head>
 <body>
-<header>
-    <strong>Quan Ly My Pham</strong>
-    <nav class="nav">
-        <a th:href="@{/home}">Trang chu</a>
-        <a th:href="@{/products}">San pham</a>
-        <a th:href="@{/cart}">Gio hang</a>
-        <a th:href="@{/orders}">Don hang</a>
-        <form th:action="@{/logout}" method="post">
-            <button type="submit">Dang xuat</button>
-        </form>
-    </nav>
-</header>
 
-<main>
-    <section class="hero">
-        <h1>Trang chu khach hang</h1>
-        <p>Chon san pham, quan ly gio hang va theo doi don hang cua ban.</p>
+<!-- Header dùng chung -->
+<header th:replace="~{layout/fragments :: header('home')}"></header>
+
+<main class="container">
+    <!-- Hero Banner cao cấp -->
+    <section class="hero-section">
+        <h1>Khám Phá Vẻ Đẹp Tự Nhiên Của Bạn</h1>
+        <p>Chào mừng đến với GlowCosmetics. Chúng tôi cung cấp các sản phẩm chăm sóc da và mỹ phẩm chính hãng hàng đầu, mang lại vẻ đẹp tự tin và tỏa sáng cho bạn mỗi ngày.</p>
         <div class="actions">
-            <a th:href="@{/products}">Mua sam ngay</a>
-            <a th:href="@{/cart}">Xem gio hang</a>
-            <a th:href="@{/orders}">Lich su don hang</a>
+            <a th:href="@{/products}" class="btn btn-primary">
+                <i class="fa-solid fa-bag-shopping"></i> Mua sắm ngay
+            </a>
+            <a th:href="@{/cart}" class="btn btn-secondary">
+                <i class="fa-solid fa-cart-shopping"></i> Xem giỏ hàng
+            </a>
         </div>
     </section>
 
-    <section>
-        <h2>San pham noi bat</h2>
-        <p th:if="${#lists.isEmpty(featuredProducts)}">Chua co san pham noi bat.</p>
-        <div class="grid" th:if="${!#lists.isEmpty(featuredProducts)}">
-            <article class="product" th:each="product : ${featuredProducts}">
-                <img class="image" th:if="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" th:src="@{${product.mainImagePath}}" alt="">
-                <div class="image" th:unless="${product.mainImagePath != null && !product.mainImagePath.isBlank()}"></div>
-                <h3><a th:href="@{/product/{id}(id=${product.id})}" th:text="${product.name}"></a></h3>
-                <p class="price" th:text="${#numbers.formatDecimal(product.salePrice != null ? product.salePrice : product.price, 0, 'COMMA', 0, 'POINT')} + ' VND'"></p>
+    <!-- Sản phẩm nổi bật -->
+    <section style="margin-bottom: 40px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 24px;">
+            <h2 style="font-weight: 800; color: var(--dark); font-size: 1.6rem;">
+                <i class="fa-solid fa-fire" style="color: var(--primary);"></i> Sản phẩm nổi bật
+            </h2>
+            <a th:href="@{/products(featured=true)}" style="font-weight: 600; font-size: 0.9rem;">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        
+        <p th:if="${#lists.isEmpty(featuredProducts)}" class="alert alert-secondary" style="background:#f1f5f9; border-color:#e2e8f0; color:var(--text-muted)">Hiện chưa có sản phẩm nổi bật nào.</p>
+        
+        <div class="product-grid" th:if="${!#lists.isEmpty(featuredProducts)}">
+            <article class="product-card" th:each="product : ${featuredProducts}">
+                <!-- Badge giảm giá nếu có sale_price -->
+                <div class="product-badge-sale" th:if="${product.salePrice != null}">SALE</div>
+                
+                <div class="product-image-container">
+                    <img class="product-image" th:if="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" th:src="@{${product.mainImagePath}}" alt="Product Image">
+                    <div class="product-image" th:unless="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" style="display: flex; align-items: center; justify-content: center; background: #e2e8f0; color: #94a3b8;">
+                        <i class="fa-regular fa-image fa-3x"></i>
+                    </div>
+                </div>
+                
+                <div class="product-brand" th:text="${product.brand != null ? product.brand.name : 'Cosmetics'}">Brand</div>
+                <h3 class="product-name">
+                    <a th:href="@{/product/{id}(id=${product.id})}" th:text="${product.name}"></a>
+                </h3>
+                
+                <div class="product-price-wrapper">
+                    <span class="product-price" th:text="${#numbers.formatDecimal(product.salePrice != null ? product.salePrice : product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                    <span class="product-old-price" th:if="${product.salePrice != null}" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                </div>
+                
+                <div class="product-stock" th:classappend="${product.stockQuantity < 5} ? 'low-stock' : ''">
+                    <i class="fa-solid" th:classappend="${product.stockQuantity > 0} ? 'fa-boxes-stacked' : 'fa-circle-xmark'"></i>
+                    <span th:text="${product.stockQuantity > 0} ? 'Còn lại: ' + ${product.stockQuantity} : 'Hết hàng'"></span>
+                </div>
+                
+                <a th:href="@{/product/{id}(id=${product.id})}" class="btn btn-outline" style="margin-top: 12px; width: 100%;">Chi tiết</a>
             </article>
         </div>
     </section>
 
-    <section>
-        <h2>San pham moi</h2>
-        <p th:if="${#lists.isEmpty(newestProducts)}">Chua co san pham moi.</p>
-        <div class="grid" th:if="${!#lists.isEmpty(newestProducts)}">
-            <article class="product" th:each="product : ${newestProducts}">
-                <img class="image" th:if="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" th:src="@{${product.mainImagePath}}" alt="">
-                <div class="image" th:unless="${product.mainImagePath != null && !product.mainImagePath.isBlank()}"></div>
-                <h3><a th:href="@{/product/{id}(id=${product.id})}" th:text="${product.name}"></a></h3>
-                <p class="price" th:text="${#numbers.formatDecimal(product.salePrice != null ? product.salePrice : product.price, 0, 'COMMA', 0, 'POINT')} + ' VND'"></p>
+    <!-- Sản phẩm mới nhất -->
+    <section style="margin-bottom: 40px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 24px;">
+            <h2 style="font-weight: 800; color: var(--dark); font-size: 1.6rem;">
+                <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--secondary);"></i> Sản phẩm mới nhất
+            </h2>
+            <a th:href="@{/products}" style="font-weight: 600; font-size: 0.9rem;">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        
+        <p th:if="${#lists.isEmpty(newestProducts)}" class="alert alert-secondary" style="background:#f1f5f9; border-color:#e2e8f0; color:var(--text-muted)">Hiện chưa có sản phẩm mới nào.</p>
+        
+        <div class="product-grid" th:if="${!#lists.isEmpty(newestProducts)}">
+            <article class="product-card" th:each="product : ${newestProducts}">
+                <div class="product-badge-sale" th:if="${product.salePrice != null}">SALE</div>
+                
+                <div class="product-image-container">
+                    <img class="product-image" th:if="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" th:src="@{${product.mainImagePath}}" alt="Product Image">
+                    <div class="product-image" th:unless="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" style="display: flex; align-items: center; justify-content: center; background: #e2e8f0; color: #94a3b8;">
+                        <i class="fa-regular fa-image fa-3x"></i>
+                    </div>
+                </div>
+                
+                <div class="product-brand" th:text="${product.brand != null ? product.brand.name : 'Cosmetics'}">Brand</div>
+                <h3 class="product-name">
+                    <a th:href="@{/product/{id}(id=${product.id})}" th:text="${product.name}"></a>
+                </h3>
+                
+                <div class="product-price-wrapper">
+                    <span class="product-price" th:text="${#numbers.formatDecimal(product.salePrice != null ? product.salePrice : product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                    <span class="product-old-price" th:if="${product.salePrice != null}" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                </div>
+                
+                <div class="product-stock" th:classappend="${product.stockQuantity < 5} ? 'low-stock' : ''">
+                    <i class="fa-solid" th:classappend="${product.stockQuantity > 0} ? 'fa-boxes-stacked' : 'fa-circle-xmark'"></i>
+                    <span th:text="${product.stockQuantity > 0} ? 'Còn lại: ' + ${product.stockQuantity} : 'Hết hàng'"></span>
+                </div>
+                
+                <a th:href="@{/product/{id}(id=${product.id})}" class="btn btn-outline" style="margin-top: 12px; width: 100%;">Chi tiết</a>
             </article>
         </div>
     </section>
 </main>
+
+<!-- Footer dùng chung -->
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+
 </body>
 </html>

@@ -1,83 +1,89 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Quan ly nguoi dung</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; background: #f6f7f9; color: #222; }
-        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-        main { max-width: 1180px; margin: 24px auto; padding: 0 16px; }
-        section { background: #fff; border: 1px solid #ddd; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
-        button { padding: 8px 10px; cursor: pointer; border: 1px solid #777; background: #fff; color: #222; }
-        .message { padding: 10px; margin-bottom: 12px; border: 1px solid #b6d7b6; background: #eef6ee; }
-        .error { border-color: #e6b5b5; background: #fdecec; }
-        a { color: #0066cc; text-decoration: none; }
-    </style>
-</head>
+<head th:replace="~{layout/fragments :: html_head('Quản lý người dùng')}"></head>
 <body>
-<header>
-    <strong>Admin - Nguoi dung</strong>
-    <nav>
-        <a th:href="@{/admin}">Dashboard</a>
-        <span> | </span>
-        <a th:href="@{/admin/orders}">Don hang</a>
-        <span> | </span>
-        <a th:href="@{/admin/products}">San pham</a>
-    </nav>
-</header>
+<div class="admin-layout">
+    <aside th:replace="~{layout/fragments :: admin_sidebar('users')}"></aside>
 
-<main>
-    <div class="message" th:if="${successMessage}" th:text="${successMessage}"></div>
-    <div class="message error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+    <main class="admin-main">
+        <header class="admin-navbar">
+            <div class="admin-page-title">
+                <h1>Quản lý người dùng</h1>
+                <p>Theo dõi tài khoản khách hàng và khóa/mở khóa khi cần.</p>
+            </div>
+        </header>
 
-    <section>
-        <h1>Quan ly nguoi dung</h1>
-        <table>
-            <thead>
-            <tr>
-                <th>Ten dang nhap</th>
-                <th>Ho ten</th>
-                <th>Email</th>
-                <th>So dien thoai</th>
-                <th>Vai tro</th>
-                <th>Trang thai</th>
-                <th>Ngay tao</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="user : ${users}">
-                <td th:text="${user.userName}"></td>
-                <td th:text="${user.fullName}"></td>
-                <td th:text="${user.email}"></td>
-                <td th:text="${user.phone != null ? user.phone : ''}"></td>
-                <td th:text="${user.role}"></td>
-                <td th:text="${user.active ? 'Dang hoat dong' : 'Bi khoa'}"></td>
-                <td th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
-                <td>
-                    <form th:if="${user.active && user.id != currentUserId && user.role.name() != 'ADMIN'}"
-                          th:action="@{/admin/users/{id}/lock(id=${user.id})}"
-                          method="post"
-                          onsubmit="return confirm('Ban chac chan muon khoa tai khoan nay?');">
-                        <button type="submit">Khoa</button>
-                    </form>
-                    <form th:if="${!user.active}"
-                          th:action="@{/admin/users/{id}/unlock(id=${user.id})}"
-                          method="post">
-                        <button type="submit">Mo khoa</button>
-                    </form>
-                    <span th:if="${user.id == currentUserId}">Tai khoan hien tai</span>
-                    <span th:if="${user.role.name() == 'ADMIN' && user.id != currentUserId}">Quan tri vien</span>
-                </td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(users)}">
-                <td colspan="8">Chua co nguoi dung.</td>
-            </tr>
-            </tbody>
-        </table>
-    </section>
-</main>
+        <section class="admin-container">
+            <div th:if="${successMessage}" class="alert alert-success">
+                <i class="fa-solid fa-circle-check"></i>
+                <span th:text="${successMessage}"></span>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <div class="admin-card">
+                <div class="table-responsive">
+                    <table class="table-custom">
+                        <thead>
+                        <tr>
+                            <th>Tên đăng nhập</th>
+                            <th>Họ tên</th>
+                            <th>Liên hệ</th>
+                            <th>Vai trò</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                            <th>Thao tác</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="user : ${users}">
+                            <td><strong th:text="${user.userName}"></strong></td>
+                            <td th:text="${user.fullName}"></td>
+                            <td>
+                                <div th:text="${user.email}"></div>
+                                <div class="muted-text" th:text="${user.phone != null ? user.phone : 'Chưa có số điện thoại'}"></div>
+                            </td>
+                            <td>
+                                <span class="badge badge-muted" th:text="${user.role}"></span>
+                            </td>
+                            <td>
+                                <span class="badge" th:classappend="${user.active ? 'badge-active' : 'badge-cancelled'}"
+                                      th:text="${user.active ? 'Đang hoạt động' : 'Bị khóa'}"></span>
+                            </td>
+                            <td th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                            <td>
+                                <div class="admin-inline-actions">
+                                    <form th:if="${user.active && user.id != currentUserId && user.role.name() != 'ADMIN'}"
+                                          th:action="@{/admin/users/{id}/lock(id=${user.id})}"
+                                          method="post"
+                                          onsubmit="return confirm('Bạn chắc chắn muốn khóa tài khoản này?');">
+                                        <button class="btn btn-danger" style="padding: 6px 10px; font-size: 0.82rem;" type="submit">
+                                            <i class="fa-solid fa-lock"></i> Khóa
+                                        </button>
+                                    </form>
+                                    <form th:if="${!user.active}"
+                                          th:action="@{/admin/users/{id}/unlock(id=${user.id})}"
+                                          method="post">
+                                        <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.82rem;" type="submit">
+                                            <i class="fa-solid fa-lock-open"></i> Mở khóa
+                                        </button>
+                                    </form>
+                                    <span class="muted-text" th:if="${user.id == currentUserId}">Tài khoản hiện tại</span>
+                                    <span class="muted-text" th:if="${user.role.name() == 'ADMIN' && user.id != currentUserId}">Quản trị viên</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(users)}">
+                            <td colspan="7" class="muted-text">Chưa có người dùng.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
 </body>
 </html>

@@ -1,112 +1,110 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title th:text="${pageTitle}">Khuyen mai</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; background: #f6f7f9; color: #222; }
-        header { padding: 16px 32px; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-        main { max-width: 900px; margin: 24px auto; padding: 0 16px; }
-        section { background: #fff; border: 1px solid #ddd; padding: 20px; }
-        label { display: block; font-weight: bold; margin: 14px 0 6px; }
-        input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #bbb; font: inherit; }
-        textarea { min-height: 100px; resize: vertical; }
-        button, .button { padding: 9px 14px; cursor: pointer; border: 1px solid #777; background: #fff; color: #222; text-decoration: none; display: inline-block; }
-        .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-        .actions { display: flex; gap: 10px; margin-top: 18px; }
-        .message { padding: 10px; margin-bottom: 12px; border: 1px solid #e6b5b5; background: #fdecec; }
-        a { color: #0066cc; text-decoration: none; }
-        @media (max-width: 720px) { .row { grid-template-columns: 1fr; } }
-    </style>
-</head>
+<head th:replace="~{layout/fragments :: html_head(${pageTitle})}"></head>
 <body>
-<header>
-    <strong th:text="${pageTitle}">Khuyen mai</strong>
-    <nav>
-        <a th:href="@{/admin/promotions}">Danh sach khuyen mai</a>
-        <span> | </span>
-        <a th:href="@{/admin}">Dashboard</a>
-    </nav>
-</header>
+<div class="admin-layout">
+    <aside th:replace="~{layout/fragments :: admin_sidebar('promotions')}"></aside>
 
-<main>
-    <div class="message" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+    <main class="admin-main">
+        <header class="admin-navbar">
+            <div class="admin-page-title">
+                <h1 th:text="${pageTitle}">Khuyến mãi</h1>
+                <p>Thiết lập mã giảm giá theo phần trăm hoặc số tiền cố định.</p>
+            </div>
+            <a th:href="@{/admin/promotions}" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left"></i> Danh sách
+            </a>
+        </header>
 
-    <section>
-        <h1 th:text="${pageTitle}">Khuyen mai</h1>
-        <form th:action="@{${actionUrl}}" method="post">
-            <div class="row">
-                <div>
-                    <label for="code">Ma khuyen mai</label>
-                    <input id="code" name="code" type="text" maxlength="30" required
-                           th:value="${promotion != null ? promotion.code : ''}">
-                </div>
-                <div>
-                    <label for="discountType">Loai giam gia</label>
-                    <select id="discountType" name="discountType" required>
-                        <option th:each="type : ${discountTypes}"
-                                th:value="${type}"
-                                th:selected="${promotion != null && promotion.discountType == type}"
-                                th:text="${type}">
-                        </option>
-                    </select>
-                </div>
+        <section class="admin-container">
+            <div th:if="${errorMessage}" class="alert alert-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${errorMessage}"></span>
             </div>
 
-            <label for="description">Mo ta</label>
-            <textarea id="description" name="description" maxlength="255" th:text="${promotion != null ? promotion.description : ''}"></textarea>
+            <div class="admin-card">
+                <form class="admin-form" th:action="@{${actionUrl}}" method="post">
+                    <div class="admin-form-grid">
+                        <div class="form-group">
+                            <label for="code">Mã khuyến mãi</label>
+                            <input id="code" class="form-control" name="code" type="text" maxlength="30" required
+                                   th:value="${promotion != null ? promotion.code : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="discountType">Loại giảm giá</label>
+                            <select id="discountType" class="form-control" name="discountType" required>
+                                <option th:each="type : ${discountTypes}"
+                                        th:value="${type}"
+                                        th:selected="${promotion != null && promotion.discountType == type}"
+                                        th:text="${type}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
 
-            <div class="row">
-                <div>
-                    <label for="discountValue">Gia tri giam</label>
-                    <input id="discountValue" name="discountValue" type="number" min="0" step="0.01" required
-                           th:value="${promotion != null ? promotion.discountValue : ''}">
-                </div>
-                <div>
-                    <label for="maxDiscount">Muc giam toi da</label>
-                    <input id="maxDiscount" name="maxDiscount" type="number" min="0" step="1000"
-                           th:value="${promotion != null && promotion.maxDiscount != null ? promotion.maxDiscount : ''}">
-                </div>
+                    <div class="form-group">
+                        <label for="description">Mô tả</label>
+                        <textarea id="description" class="form-control" name="description" rows="3" maxlength="255"
+                                  th:text="${promotion != null ? promotion.description : ''}"></textarea>
+                    </div>
+
+                    <div class="admin-form-grid">
+                        <div class="form-group">
+                            <label for="discountValue">Giá trị giảm</label>
+                            <input id="discountValue" class="form-control" name="discountValue" type="number" min="0" step="0.01" required
+                                   th:value="${promotion != null ? promotion.discountValue : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="maxDiscount">Mức giảm tối đa</label>
+                            <input id="maxDiscount" class="form-control" name="maxDiscount" type="number" min="0" step="1000"
+                                   th:value="${promotion != null && promotion.maxDiscount != null ? promotion.maxDiscount : ''}">
+                        </div>
+                    </div>
+
+                    <div class="admin-form-grid">
+                        <div class="form-group">
+                            <label for="minOrderAmount">Đơn tối thiểu</label>
+                            <input id="minOrderAmount" class="form-control" name="minOrderAmount" type="number" min="0" step="1000"
+                                   th:value="${promotion != null ? promotion.minOrderAmount : 0}">
+                        </div>
+                        <div class="form-group">
+                            <label for="usageLimit">Giới hạn lượt dùng</label>
+                            <input id="usageLimit" class="form-control" name="usageLimit" type="number" min="0"
+                                   th:value="${promotion != null && promotion.usageLimit != null ? promotion.usageLimit : ''}">
+                        </div>
+                    </div>
+
+                    <div class="admin-form-grid">
+                        <div class="form-group">
+                            <label for="startDate">Ngày bắt đầu</label>
+                            <input id="startDate" class="form-control" name="startDate" type="datetime-local" required
+                                   th:value="${promotion != null ? #temporals.format(promotion.startDate, 'yyyy-MM-dd''T''HH:mm') : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">Ngày kết thúc</label>
+                            <input id="endDate" class="form-control" name="endDate" type="datetime-local" required
+                                   th:value="${promotion != null ? #temporals.format(promotion.endDate, 'yyyy-MM-dd''T''HH:mm') : ''}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="active">Trạng thái</label>
+                        <select id="active" class="form-control" name="active">
+                            <option value="true" th:selected="${promotion == null || promotion.active}">Đang bật</option>
+                            <option value="false" th:selected="${promotion != null && !promotion.active}">Tạm tắt</option>
+                        </select>
+                    </div>
+
+                    <div class="admin-form-actions">
+                        <a class="btn btn-secondary" th:href="@{/admin/promotions}">Hủy</a>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fa-solid fa-floppy-disk"></i> Lưu khuyến mãi
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            <div class="row">
-                <div>
-                    <label for="minOrderAmount">Don toi thieu</label>
-                    <input id="minOrderAmount" name="minOrderAmount" type="number" min="0" step="1000"
-                           th:value="${promotion != null ? promotion.minOrderAmount : 0}">
-                </div>
-                <div>
-                    <label for="usageLimit">Gioi han luot dung</label>
-                    <input id="usageLimit" name="usageLimit" type="number" min="0"
-                           th:value="${promotion != null && promotion.usageLimit != null ? promotion.usageLimit : ''}">
-                </div>
-            </div>
-
-            <div class="row">
-                <div>
-                    <label for="startDate">Ngay bat dau</label>
-                    <input id="startDate" name="startDate" type="datetime-local" required
-                           th:value="${promotion != null ? #temporals.format(promotion.startDate, 'yyyy-MM-dd''T''HH:mm') : ''}">
-                </div>
-                <div>
-                    <label for="endDate">Ngay ket thuc</label>
-                    <input id="endDate" name="endDate" type="datetime-local" required
-                           th:value="${promotion != null ? #temporals.format(promotion.endDate, 'yyyy-MM-dd''T''HH:mm') : ''}">
-                </div>
-            </div>
-
-            <label for="active">Trang thai</label>
-            <select id="active" name="active">
-                <option value="true" th:selected="${promotion == null || promotion.active}">Dang bat</option>
-                <option value="false" th:selected="${promotion != null && !promotion.active}">Tam tat</option>
-            </select>
-
-            <div class="actions">
-                <button type="submit">Luu khuyen mai</button>
-                <a class="button" th:href="@{/admin/promotions}">Huy</a>
-            </div>
-        </form>
-    </section>
-</main>
+        </section>
+    </main>
+</div>
 </body>
 </html>

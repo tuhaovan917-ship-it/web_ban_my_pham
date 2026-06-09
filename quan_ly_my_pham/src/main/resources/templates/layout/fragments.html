@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<!-- ==========================================================================
+     FRAGMENT: HTML HEAD (Includes Google Fonts, Icons and Style.css)
+     ========================================================================== -->
+<head th:fragment="html_head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - Cosmetics Store'"></title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style CSS -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+<!-- ==========================================================================
+     FRAGMENT: STOREFRONT HEADER (Dynamic Navigation)
+     ========================================================================== -->
+<header th:fragment="header(activePage)" class="navbar-wrapper">
+    <div class="navbar">
+        <a th:href="${currentUser != null} ? @{/home} : @{/}" class="logo">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>GlowCosmetics</span>
+        </a>
+        
+        <nav class="nav-links">
+            <a th:href="${currentUser != null} ? @{/home} : @{/}" class="nav-link" th:classappend="${activePage == 'home' ? 'active' : ''}">
+                <i class="fa-solid fa-house"></i> Trang chủ
+            </a>
+            <a th:href="@{/products}" class="nav-link" th:classappend="${activePage == 'products' ? 'active' : ''}">
+                <i class="fa-solid fa-gifts"></i> Sản phẩm
+            </a>
+            
+            <!-- Link Cart & Orders for logged-in Customers / Admins -->
+            <th:block th:if="${currentUser != null}">
+                <a th:href="@{/cart}" class="nav-link" th:classappend="${activePage == 'cart' ? 'active' : ''}">
+                    <i class="fa-solid fa-cart-shopping"></i> Giỏ hàng
+                </a>
+                <a th:href="@{/orders}" class="nav-link" th:classappend="${activePage == 'orders' ? 'active' : ''}">
+                    <i class="fa-solid fa-receipt"></i> Đơn hàng
+                </a>
+            </th:block>
+        </nav>
+
+        <div class="nav-links">
+            <!-- Guest Links -->
+            <th:block th:if="${currentUser == null}">
+                <a th:href="@{/login}" class="btn btn-secondary">Đăng nhập</a>
+                <a th:href="@{/register}" class="btn btn-primary">Đăng ký</a>
+            </th:block>
+            
+            <!-- Logged-in Links -->
+            <th:block th:if="${currentUser != null}">
+                <div class="nav-user-info">
+                    <span class="nav-user-name">
+                        <i class="fa-solid fa-circle-user" style="color: var(--primary-dark)"></i>
+                        <span th:text="${currentUser.fullName}"></span>
+                    </span>
+                    <!-- Admin Shortcut -->
+                    <a th:if="${currentUser.role.name() == 'ADMIN'}" th:href="@{/admin}" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem">
+                        <i class="fa-solid fa-toolbox"></i> Trang Quản trị
+                    </a>
+                    
+                    <form th:action="@{/logout}" method="post" style="display: inline-block; margin: 0;">
+                        <button type="submit" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.85rem">
+                            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                        </button>
+                    </form>
+                </div>
+            </th:block>
+        </div>
+    </div>
+</header>
+
+<!-- ==========================================================================
+     FRAGMENT: STOREFRONT FOOTER
+     ========================================================================== -->
+<footer th:fragment="footer" class="footer">
+    <div class="footer-content">
+        <div class="footer-logo">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary)"></i> GlowCosmetics
+        </div>
+        <div class="footer-links">
+            <a th:href="@{/}" class="footer-link">Trang chủ</a>
+            <a th:href="@{/products}" class="footer-link">Sản phẩm</a>
+            <a th:href="@{/cart}" class="footer-link">Giỏ hàng</a>
+        </div>
+    </div>
+    <div class="footer-copy">
+        &copy; 2026 GlowCosmetics. Dự án môn học Công nghệ Java - Hệ thống Quản Lý Cửa Hàng Mỹ Phẩm cao cấp.
+    </div>
+</footer>
+
+<!-- ==========================================================================
+     FRAGMENT: ADMIN SIDEBAR (Unified management navigation)
+     ========================================================================== -->
+<aside th:fragment="admin_sidebar(activePage)" class="admin-sidebar">
+    <div class="admin-logo">
+        <i class="fa-solid fa-toolbox" style="color: var(--primary);"></i>
+        <span>GlowAdmin</span>
+    </div>
+    
+    <ul class="admin-menu">
+        <li class="admin-menu-item" th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
+            <a th:href="@{/admin}">
+                <i class="fa-solid fa-chart-line"></i> Dashboard
+            </a>
+        </li>
+        <li class="admin-menu-item" th:classappend="${activePage == 'products' ? 'active' : ''}">
+            <a th:href="@{/admin/products}">
+                <i class="fa-solid fa-bottle-droplet"></i> Sản phẩm
+            </a>
+        </li>
+        <li class="admin-menu-item" th:classappend="${activePage == 'categories' ? 'active' : ''}">
+            <a th:href="@{/admin/categories}">
+                <i class="fa-solid fa-folder-open"></i> Danh mục
+            </a>
+        </li>
+        <li class="admin-menu-item" th:classappend="${activePage == 'brands' ? 'active' : ''}">
+            <a th:href="@{/admin/brands}">
+                <i class="fa-solid fa-award"></i> Thương hiệu
+            </a>
+        </li>
+        <li class="admin-menu-item" th:classappend="${activePage == 'promotions' ? 'active' : ''}">
+            <a th:href="@{/admin/promotions}">
+                <i class="fa-solid fa-tags"></i> Khuyến mãi
+            </a>
+        </li>
+        <li class="admin-menu-item" th:classappend="${activePage == 'orders' ? 'active' : ''}">
+            <a th:href="@{/admin/orders}">
+                <i class="fa-solid fa-truck-ramp-box"></i> Đơn hàng
+            </a>
+        </li>
+        <li class="admin-menu-item" th:classappend="${activePage == 'users' ? 'active' : ''}">
+            <a th:href="@{/admin/users}">
+                <i class="fa-solid fa-users-gear"></i> Người dùng
+            </a>
+        </li>
+        <li class="admin-menu-item" th:classappend="${activePage == 'reviews' ? 'active' : ''}">
+            <a th:href="@{/admin/reviews}">
+                <i class="fa-solid fa-star-half-stroke"></i> Đánh giá
+            </a>
+        </li>
+        
+        <!-- Quick links -->
+        <li style="margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;"></li>
+        
+        <li class="admin-menu-item">
+            <a th:href="@{/}" target="_blank">
+                <i class="fa-solid fa-globe"></i> Xem cửa hàng
+            </a>
+        </li>
+    </ul>
+    
+    <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+        <th:block th:if="${currentUser != null}">
+            <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-user-tie"></i>
+                <span th:text="${currentUser.fullName}"></span>
+            </div>
+            <form th:action="@{/logout}" method="post" style="width: 100%;">
+                <button type="submit" class="btn btn-danger" style="width: 100%; padding: 8px 14px;">
+                    <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                </button>
+            </form>
+        </th:block>
+    </div>
+</aside>
+
+</body>
+</html>

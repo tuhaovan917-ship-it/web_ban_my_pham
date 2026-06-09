@@ -22,6 +22,7 @@ public class RoleBasedLoginSuccessHandler implements AuthenticationSuccessHandle
             .map(GrantedAuthority::getAuthority)
             .anyMatch("ROLE_ADMIN"::equals);
 
-        response.sendRedirect(admin ? "/admin" : "/home");
+        String contextPath = request.getContextPath();
+        response.sendRedirect(contextPath + (admin ? "/admin" : "/home"));
     }
 }
