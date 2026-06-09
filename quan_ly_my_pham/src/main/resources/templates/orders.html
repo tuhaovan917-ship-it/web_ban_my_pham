@@ -49,21 +49,11 @@
             </thead>
             <tbody>
             <tr th:each="order : ${orders}">
-                <td style="text-align: center; font-weight: 700; color: var(--dark);" th:text="'#' + ${order.id}"></td>
+                <td style="text-align: center; font-weight: 700; color: var(--dark);" th:text="${order.id}"></td>
                 <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
                 <td style="text-align: center;">
                     <!-- Trạng thái đơn hàng với Badge màu sắc tương ứng -->
-                    <span class="badge" th:classappend="${
-                        order.status == 'PENDING_CONFIRMATION' ? 'badge-pending' : (
-                        order.status == 'CONFIRMED' ? 'badge-confirmed' : (
-                        order.status == 'SHIPPING' ? 'badge-shipping' : (
-                        order.status == 'COMPLETED' ? 'badge-completed' : 'badge-cancelled')))
-                    }" th:text="${
-                        order.status == 'PENDING_CONFIRMATION' ? 'Chờ xác nhận' : (
-                        order.status == 'CONFIRMED' ? 'Đã xác nhận' : (
-                        order.status == 'SHIPPING' ? 'Đang giao hàng' : (
-                        order.status == 'COMPLETED' ? 'Đã hoàn thành' : 'Đã hủy')))
-                    }">Trạng thái</span>
+                    <span class="badge" th:classappend="${order.status.badgeClass}" th:text="${order.status.displayName}">Trạng thái</span>
                 </td>
                 <td style="text-align: right; font-weight: 800; color: var(--primary-dark);" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
                 <td style="text-align: center;">

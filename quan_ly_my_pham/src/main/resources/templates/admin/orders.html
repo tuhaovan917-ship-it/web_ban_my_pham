@@ -4,11 +4,9 @@
 <body>
 
 <div class="admin-layout">
-    <!-- Sidebar dùng chung (activePage = 'orders') -->
     <aside th:replace="~{layout/fragments :: admin_sidebar('orders')}"></aside>
-    
+
     <div class="admin-main">
-        <!-- Top navbar của admin -->
         <header class="admin-navbar">
             <span style="font-weight: 700; color: var(--text-main); font-size: 1.1rem;">
                 <i class="fa-solid fa-truck-ramp-box" style="color: var(--primary); margin-right: 8px;"></i>QUẢN LÝ ĐƠN HÀNG
@@ -17,16 +15,12 @@
                 GlowCosmetics &bull; Admin Panel
             </div>
         </header>
-        
-        <!-- Content chính -->
+
         <main class="admin-container">
-            
-            <!-- Card quản lý đơn hàng -->
             <section class="admin-card">
                 <div class="admin-section-header" style="flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
                     <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--dark); margin: 0;">Danh sách đơn hàng</h2>
-                    
-                    <!-- Form lọc trạng thái -->
+
                     <form th:action="@{/admin/orders}" method="get" style="display: flex; gap: 8px; align-items: center; margin: 0;">
                         <label for="status" style="font-weight: 600; font-size: 0.9rem; color: var(--text-muted);">Trạng thái:</label>
                         <select id="status" name="status" class="form-control" style="padding: 6px 12px; font-size: 0.85rem;">
@@ -34,12 +28,7 @@
                             <option th:each="status : ${statuses}"
                                     th:value="${status}"
                                     th:selected="${status == selectedStatus}"
-                                    th:text="${
-                                        status == 'PENDING_CONFIRMATION' ? 'Chờ xác nhận' : (
-                                        status == 'CONFIRMED' ? 'Đã xác nhận' : (
-                                        status == 'SHIPPING' ? 'Đang giao hàng' : (
-                                        status == 'COMPLETED' ? 'Đã hoàn thành' : 'Đã hủy')))
-                                    }">
+                                    th:text="${status.displayName}">
                             </option>
                         </select>
                         <button type="submit" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.85rem;">
@@ -63,22 +52,12 @@
                         </thead>
                         <tbody>
                         <tr th:each="order : ${orders}">
-                            <td style="text-align: center; font-weight: 700; color: var(--dark);" th:text="'#' + ${order.id}"></td>
+                            <td style="text-align: center; font-weight: 700; color: var(--dark);" th:text="${order.id}"></td>
                             <td th:text="${order.user.fullName}"></td>
                             <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
                             <td th:text="${order.receiverName}"></td>
                             <td style="text-align: center;">
-                                <span class="badge" th:classappend="${
-                                    order.status == 'PENDING_CONFIRMATION' ? 'badge-pending' : (
-                                    order.status == 'CONFIRMED' ? 'badge-confirmed' : (
-                                    order.status == 'SHIPPING' ? 'badge-shipping' : (
-                                    order.status == 'COMPLETED' ? 'badge-completed' : 'badge-cancelled')))
-                                }" th:text="${
-                                    order.status == 'PENDING_CONFIRMATION' ? 'Chờ xác nhận' : (
-                                    order.status == 'CONFIRMED' ? 'Đã xác nhận' : (
-                                    order.status == 'SHIPPING' ? 'Đang giao' : (
-                                    order.status == 'COMPLETED' ? 'Hoàn thành' : 'Đã hủy')))
-                                }">Trạng thái</span>
+                                <span class="badge" th:classappend="${order.status.badgeClass}" th:text="${order.status.displayName}">Trạng thái</span>
                             </td>
                             <td style="text-align: right; font-weight: 800; color: var(--primary-dark);" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
                             <td style="text-align: center;">

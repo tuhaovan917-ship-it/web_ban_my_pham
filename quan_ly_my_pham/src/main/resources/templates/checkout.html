@@ -35,7 +35,10 @@
 
                 <div class="form-group">
                     <label for="receiverPhone">Số điện thoại liên hệ <span style="color: var(--error)">*</span></label>
-                    <input id="receiverPhone" name="receiverPhone" class="form-control" type="text" required th:value="${user.phone}">
+                    <input id="receiverPhone" name="receiverPhone" class="form-control" type="tel" required
+                           pattern="^0[0-9]{9}$" minlength="10" maxlength="10"
+                           title="Số điện thoại phải gồm 10 chữ số và bắt đầu bằng 0"
+                           th:value="${user.phone}">
                 </div>
 
                 <div class="form-group">
@@ -47,7 +50,7 @@
                     <div class="form-group">
                         <label for="paymentMethod">Phương thức thanh toán <span style="color: var(--error)">*</span></label>
                         <select id="paymentMethod" name="paymentMethod" class="form-control" required>
-                            <option th:each="method : ${paymentMethods}" th:value="${method}" th:text="${method}"></option>
+                            <option th:each="method : ${paymentMethods}" th:value="${method}" th:text="${method.displayName}"></option>
                         </select>
                     </div>
 

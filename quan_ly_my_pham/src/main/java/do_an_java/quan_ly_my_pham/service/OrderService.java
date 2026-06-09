@@ -217,8 +217,8 @@ public class OrderService {
         if (request.receiverName() == null || request.receiverName().isBlank()) {
             throw new BusinessException("Ten nguoi nhan khong duoc de trong");
         }
-        if (request.receiverPhone() == null || !request.receiverPhone().matches("^[0-9]+$")) {
-            throw new BusinessException("So dien thoai nguoi nhan khong hop le");
+        if (request.receiverPhone() == null || !request.receiverPhone().trim().matches("^0[0-9]{9}$")) {
+            throw new BusinessException("So dien thoai nguoi nhan phai gom 10 chu so va bat dau bang 0");
         }
         if (request.shippingAddress() == null || request.shippingAddress().isBlank()) {
             throw new BusinessException("Dia chi giao hang khong duoc de trong");

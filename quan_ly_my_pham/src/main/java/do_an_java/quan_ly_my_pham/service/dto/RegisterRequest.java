@@ -23,7 +23,7 @@ public record RegisterRequest(
     @Size(max = 100, message = "Email toi da 100 ky tu")
     String email,
 
-    @Pattern(regexp = "^[0-9]{10}$", message = "So dien thoai phai gom 10 chu so")
+    @Pattern(regexp = "^$|^0[0-9]{9}$", message = "So dien thoai phai gom 10 chu so va bat dau bang 0")
     String phone,
 
     @Size(max = 255, message = "Dia chi toi da 255 ky tu")
