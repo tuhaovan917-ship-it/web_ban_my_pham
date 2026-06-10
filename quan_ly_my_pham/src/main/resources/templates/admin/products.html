@@ -4,24 +4,19 @@
 <body>
 
 <div class="admin-layout">
-    <!-- Sidebar dùng chung (activePage = 'products') -->
     <aside th:replace="~{layout/fragments :: admin_sidebar('products')}"></aside>
-    
+
     <div class="admin-main">
-        <!-- Top navbar của admin -->
         <header class="admin-navbar">
             <span style="font-weight: 700; color: var(--text-main); font-size: 1.1rem;">
                 <i class="fa-solid fa-bottle-droplet" style="color: var(--primary); margin-right: 8px;"></i>QUẢN LÝ SẢN PHẨM
             </span>
             <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
-                GlowCosmetics &bull; Admin Panel
+                Mỹ Phẩm Glow &bull; Trang quản trị
             </div>
         </header>
-        
-        <!-- Content chính -->
+
         <main class="admin-container">
-            
-            <!-- Alert Messages -->
             <div class="alert alert-success" th:if="${successMessage}">
                 <i class="fa-solid fa-circle-check"></i>
                 <span th:text="${successMessage}"></span>
@@ -31,10 +26,11 @@
                 <span th:text="${errorMessage}"></span>
             </div>
 
-            <!-- Card danh sách sản phẩm -->
             <section class="admin-card">
                 <div class="admin-section-header">
-                    <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--dark); margin: 0;">Danh sách sản phẩm</h2>
+                    <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--dark); margin: 0;">
+                        <i class="fa-solid fa-boxes-stacked" style="color: var(--primary);"></i> Danh sách sản phẩm
+                    </h2>
                     <a class="btn btn-primary" th:href="@{/admin/products/new}">
                         <i class="fa-solid fa-plus"></i> Thêm sản phẩm mới
                     </a>
@@ -45,7 +41,7 @@
                         <thead>
                         <tr>
                             <th style="width: 8%; text-align: center;">Ảnh</th>
-                            <th style="width: 27%;">Tên sản phẩm</th>
+                            <th style="width: 23%;">Tên sản phẩm</th>
                             <th style="width: 12%;">Danh mục</th>
                             <th style="width: 12%;">Thương hiệu</th>
                             <th style="width: 15%; text-align: right;">Đơn giá</th>
@@ -65,9 +61,18 @@
                             </td>
                             <td>
                                 <strong th:text="${product.name}" style="color: var(--dark); font-size: 0.95rem;"></strong>
+                                <div class="muted-text" th:if="${product.active && (!product.category.active || (product.brand != null && !product.brand.active))}">
+                                    <i class="fa-solid fa-eye-slash"></i> Chưa hiển thị ở cửa hàng
+                                </div>
                             </td>
-                            <td th:text="${product.category.name}"></td>
-                            <td th:text="${product.brand != null ? product.brand.name : 'Chính hãng'}"></td>
+                            <td>
+                                <span th:text="${product.category.name}"></span>
+                                <div class="muted-text" th:if="${!product.category.active}">Danh mục đang tạm ẩn</div>
+                            </td>
+                            <td>
+                                <span th:text="${product.brand != null ? product.brand.name : 'Không có'}"></span>
+                                <div class="muted-text" th:if="${product.brand != null && !product.brand.active}">Thương hiệu đang tạm ẩn</div>
+                            </td>
                             <td style="text-align: right;">
                                 <div th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'" style="font-weight: 700; color: var(--dark);"></div>
                                 <small th:if="${product.salePrice != null}" th:text="'Khuyến mãi: ' + ${#numbers.formatDecimal(product.salePrice, 0, 'COMMA', 0, 'POINT')} + ' đ'" style="color: var(--error); font-weight: 600;"></small>
@@ -78,7 +83,7 @@
                                 <i th:unless="${product.featured}" class="fa-regular fa-circle" style="color: var(--text-muted); font-size: 1.1rem;"></i>
                             </td>
                             <td style="text-align: center;">
-                                <span class="badge" th:classappend="${product.active} ? 'badge-completed' : 'badge-cancelled'" 
+                                <span class="badge" th:classappend="${product.active} ? 'badge-completed' : 'badge-cancelled'"
                                       th:text="${product.active} ? 'Đang bán' : 'Tạm ẩn'"></span>
                             </td>
                             <td style="text-align: center;">
@@ -87,8 +92,10 @@
                                         <i class="fa-solid fa-pen-to-square"></i> Sửa
                                     </a>
                                     <form th:action="@{/admin/products/{id}/toggle-active(id=${product.id})}" method="post" style="display: inline;">
-                                        <button type="submit" class="btn btn-outline" style="padding: 6px 10px; font-size: 0.8rem; border-color: var(--text-muted); color: var(--text-main);" 
-                                                th:text="${product.active ? 'Ẩn' : 'Mở'}">Ẩn</button>
+                                        <button type="submit" class="btn btn-outline" style="padding: 6px 10px; font-size: 0.8rem; border-color: var(--text-muted); color: var(--text-main);">
+                                            <i class="fa-solid" th:classappend="${product.active ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                                            <span th:text="${product.active ? 'Ẩn' : 'Mở'}"></span>
+                                        </button>
                                     </form>
                                     <form th:action="@{/admin/products/{id}/delete(id=${product.id})}" method="post"
                                           onsubmit="return confirm('Bạn chắc chắn muốn xóa sản phẩm này?');" style="display: inline;">

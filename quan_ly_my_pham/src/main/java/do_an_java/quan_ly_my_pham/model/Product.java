@@ -34,7 +34,7 @@ public class Product {
     @Column(name = "product_id")
     private Integer id;
 
-    @NotNull(message = "San pham phai thuoc mot danh muc")
+    @NotNull(message = "Sản phẩm phải thuộc một danh mục")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     @ToString.Exclude

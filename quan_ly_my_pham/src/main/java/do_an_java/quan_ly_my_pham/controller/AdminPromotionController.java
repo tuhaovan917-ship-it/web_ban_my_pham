@@ -36,7 +36,7 @@ public class AdminPromotionController {
         addFormOptions(model);
         model.addAttribute("promotion", null);
         model.addAttribute("actionUrl", "/admin/promotions");
-        model.addAttribute("pageTitle", "Them khuyen mai");
+        model.addAttribute("pageTitle", "Thêm khuyến mãi");
         return "admin/promotion-form";
     }
 
@@ -67,7 +67,7 @@ public class AdminPromotionController {
                 usageLimit,
                 active
             ));
-            redirectAttributes.addFlashAttribute("successMessage", "Da them ma khuyen mai " + promotion.getCode());
+            redirectAttributes.addFlashAttribute("successMessage", "Đã thêm mã khuyến mãi " + promotion.getCode());
             return "redirect:/admin/promotions";
         } catch (BusinessException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
@@ -80,7 +80,7 @@ public class AdminPromotionController {
         addFormOptions(model);
         model.addAttribute("promotion", promotionService.findById(id));
         model.addAttribute("actionUrl", "/admin/promotions/" + id);
-        model.addAttribute("pageTitle", "Sua khuyen mai");
+        model.addAttribute("pageTitle", "Sửa khuyến mãi");
         return "admin/promotion-form";
     }
 
@@ -112,7 +112,7 @@ public class AdminPromotionController {
                 usageLimit,
                 active
             ));
-            redirectAttributes.addFlashAttribute("successMessage", "Da cap nhat ma khuyen mai " + promotion.getCode());
+            redirectAttributes.addFlashAttribute("successMessage", "Đã cập nhật mã khuyến mãi " + promotion.getCode());
             return "redirect:/admin/promotions";
         } catch (BusinessException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
@@ -125,7 +125,7 @@ public class AdminPromotionController {
         Promotion promotion = promotionService.toggleActive(id);
         redirectAttributes.addFlashAttribute(
             "successMessage",
-            Boolean.TRUE.equals(promotion.getActive()) ? "Da bat ma khuyen mai" : "Da tat ma khuyen mai"
+            Boolean.TRUE.equals(promotion.getActive()) ? "Đã bật mã khuyến mãi" : "Đã tắt mã khuyến mãi"
         );
         return "redirect:/admin/promotions";
     }
@@ -135,7 +135,7 @@ public class AdminPromotionController {
         boolean deleted = promotionService.deletePromotion(id);
         redirectAttributes.addFlashAttribute(
             "successMessage",
-            deleted ? "Da xoa ma khuyen mai" : "Ma da co luot su dung nen he thong da tam tat ma khuyen mai"
+            deleted ? "Đã xóa mã khuyến mãi" : "Mã đã có lượt sử dụng nên hệ thống đã tạm tắt mã khuyến mãi"
         );
         return "redirect:/admin/promotions";
     }

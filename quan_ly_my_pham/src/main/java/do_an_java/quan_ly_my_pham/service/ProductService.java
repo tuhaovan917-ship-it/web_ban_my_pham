@@ -63,7 +63,7 @@ public class ProductService {
 
     public Product findById(Integer productId) {
         return productRepository.findById(productId)
-            .orElseThrow(() -> new NotFoundException("Khong tim thay san pham"));
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm"));
     }
 
     public List<Product> findNewestProducts() {
@@ -79,7 +79,7 @@ public class ProductService {
 
     public Product findVisibleById(Integer productId) {
         return productRepository.findVisibleById(productId)
-            .orElseThrow(() -> new NotFoundException("Khong tim thay san pham"));
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm"));
     }
 
     public List<Product> findLowStockProducts() {
@@ -151,12 +151,12 @@ public class ProductService {
         validateProductForm(form);
 
         Category category = categoryRepository.findById(form.categoryId())
-            .orElseThrow(() -> new NotFoundException("Khong tim thay danh muc"));
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy danh mục"));
 
         Brand brand = null;
         if (form.brandId() != null) {
             brand = brandRepository.findById(form.brandId())
-                .orElseThrow(() -> new NotFoundException("Khong tim thay thuong hieu"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy thương hiệu"));
         }
 
         product.setCategory(category);
@@ -172,22 +172,22 @@ public class ProductService {
 
     private void validateProductForm(ProductForm form) {
         if (form.categoryId() == null) {
-            throw new BusinessException("Danh muc khong duoc de trong");
+            throw new BusinessException("Danh mục không được để trống");
         }
         if (form.name() == null || form.name().isBlank()) {
-            throw new BusinessException("Ten san pham khong duoc de trong");
+            throw new BusinessException("Tên sản phẩm không được để trống");
         }
         if (form.price() == null || form.price().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Gia san pham khong hop le");
+            throw new BusinessException("Giá sản phẩm không hợp lệ");
         }
         if (form.salePrice() != null && form.salePrice().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Gia khuyen mai khong hop le");
+            throw new BusinessException("Giá khuyến mãi không hợp lệ");
         }
         if (form.salePrice() != null && form.salePrice().compareTo(form.price()) > 0) {
-            throw new BusinessException("Gia khuyen mai khong duoc lon hon gia goc");
+            throw new BusinessException("Giá khuyến mãi không được lớn hơn giá gốc");
         }
         if (form.stockQuantity() == null || form.stockQuantity() < 0) {
-            throw new BusinessException("So luong ton kho khong hop le");
+            throw new BusinessException("Số lượng tồn kho không hợp lệ");
         }
     }
 
@@ -207,14 +207,14 @@ public class ProductService {
             Path uploadDirectory = PRODUCT_IMAGE_DIRECTORY.toAbsolutePath().normalize();
             Path target = uploadDirectory.resolve(fileName).normalize();
             if (!target.startsWith(uploadDirectory)) {
-                throw new BusinessException("Ten file anh khong hop le");
+                throw new BusinessException("Tên file ảnh không hợp lệ");
             }
             Files.copy(imageFile.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
             String imagePath = "/uploads/products/" + fileName;
             product.setMainImagePath(imagePath);
             syncMainProductImage(product, imagePath);
         } catch (IOException ex) {
-            throw new BusinessException("Khong the luu anh san pham");
+            throw new BusinessException("Không thể lưu ảnh sản phẩm");
         }
     }
 
@@ -237,12 +237,12 @@ public class ProductService {
 
     private String extractImageExtension(String fileName) {
         if (fileName == null || !fileName.contains(".")) {
-            throw new BusinessException("Anh san pham phai co dinh dang jpg, jpeg, png hoac webp");
+            throw new BusinessException("Ảnh sản phẩm phải có định dạng jpg, jpeg, png hoặc webp");
         }
 
         String extension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase(Locale.ROOT);
         if (!List.of(".jpg", ".jpeg", ".png", ".webp").contains(extension)) {
-            throw new BusinessException("Chi chap nhan anh jpg, jpeg, png hoac webp");
+            throw new BusinessException("Chỉ chấp nhận ảnh jpg, jpeg, png hoặc webp");
         }
         return extension;
     }

@@ -7,7 +7,7 @@
     <main class="admin-main">
         <header class="admin-navbar">
             <div class="admin-page-title">
-                <h1 th:text="${pageTitle}">Danh mục</h1>
+                <h1><i class="fa-solid fa-folder-open" style="color: var(--primary);"></i> <span th:text="${pageTitle}">Danh mục</span></h1>
                 <p>Tổ chức nhóm sản phẩm để người mua lọc nhanh hơn.</p>
             </div>
             <a th:href="@{/admin/categories}" class="btn btn-secondary">

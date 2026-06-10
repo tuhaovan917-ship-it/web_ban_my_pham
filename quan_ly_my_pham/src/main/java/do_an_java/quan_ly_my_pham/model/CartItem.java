@@ -30,22 +30,22 @@ public class CartItem {
     @Column(name = "cart_item_id")
     private Integer id;
 
-    @NotNull(message = "San pham trong gio phai thuoc ve mot gio hang")
+    @NotNull(message = "Sản phẩm trong giỏ phải thuộc về một giỏ hàng")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Cart cart;
 
-    @NotNull(message = "San pham trong gio khong duoc de trong")
+    @NotNull(message = "Sản phẩm trong giỏ không được để trống")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Product product;
 
-    @NotNull(message = "So luong khong duoc de trong")
-    @Min(value = 1, message = "So luong phai it nhat la 1")
+    @NotNull(message = "Số lượng không được để trống")
+    @Min(value = 1, message = "Số lượng phải ít nhất là 1")
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 

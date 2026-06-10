@@ -29,7 +29,7 @@ public class PromotionService {
 
     public Promotion findById(Integer promotionId) {
         return promotionRepository.findById(promotionId)
-            .orElseThrow(() -> new NotFoundException("Khong tim thay khuyen mai"));
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy khuyến mãi"));
     }
 
     public PromotionDiscount calculateDiscount(String code, BigDecimal subtotal) {
@@ -38,7 +38,7 @@ public class PromotionService {
         }
 
         Promotion promotion = promotionRepository.findByCodeIgnoreCase(code.trim())
-            .orElseThrow(() -> new BusinessException("Ma khuyen mai khong ton tai"));
+            .orElseThrow(() -> new BusinessException("Mã khuyến mãi không tồn tại"));
 
         validatePromotion(promotion, subtotal);
         BigDecimal amount = calculateAmount(promotion, subtotal);
@@ -83,7 +83,7 @@ public class PromotionService {
         if (form.usageLimit() != null
             && promotion.getUsedCount() != null
             && form.usageLimit() < promotion.getUsedCount()) {
-            throw new BusinessException("Gioi han luot dung khong duoc nho hon so luot da su dung");
+            throw new BusinessException("Giới hạn lượt dùng không được nhỏ hơn số lượt đã sử dụng");
         }
         applyPromotionForm(promotion, form);
         return promotionRepository.save(promotion);
@@ -111,42 +111,42 @@ public class PromotionService {
 
     private void validatePromotionForm(PromotionForm form, Integer currentId) {
         if (form.code() == null || form.code().isBlank()) {
-            throw new BusinessException("Ma khuyen mai khong duoc de trong");
+            throw new BusinessException("Mã khuyến mãi không được để trống");
         }
         String code = form.code().trim().toUpperCase();
         if (code.length() > 30) {
-            throw new BusinessException("Ma khuyen mai toi da 30 ky tu");
+            throw new BusinessException("Mã khuyến mãi tối đa 30 ký tự");
         }
         boolean duplicated = currentId == null
             ? promotionRepository.existsByCodeIgnoreCase(code)
             : promotionRepository.existsByCodeIgnoreCaseAndIdNot(code, currentId);
         if (duplicated) {
-            throw new BusinessException("Ma khuyen mai da ton tai");
+            throw new BusinessException("Mã khuyến mãi đã tồn tại");
         }
 
         if (form.discountType() == null) {
-            throw new BusinessException("Loai giam gia khong duoc de trong");
+            throw new BusinessException("Loại giảm giá không được để trống");
         }
         if (form.discountValue() == null || form.discountValue().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BusinessException("Gia tri giam gia phai lon hon 0");
+            throw new BusinessException("Giá trị giảm giá phải lớn hơn 0");
         }
         if (form.discountType() == DiscountType.PERCENT && form.discountValue().compareTo(ONE_HUNDRED) > 0) {
-            throw new BusinessException("Giam gia phan tram khong duoc lon hon 100");
+            throw new BusinessException("Giảm giá phần trăm không được lớn hơn 100");
         }
         if (form.minOrderAmount() != null && form.minOrderAmount().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Gia tri don toi thieu khong duoc am");
+            throw new BusinessException("Giá trị đơn tối thiểu không được âm");
         }
         if (form.maxDiscount() != null && form.maxDiscount().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Muc giam toi da khong duoc am");
+            throw new BusinessException("Mức giảm tối đa không được âm");
         }
         if (form.startDate() == null || form.endDate() == null) {
-            throw new BusinessException("Ngay bat dau va ngay ket thuc khong duoc de trong");
+            throw new BusinessException("Ngày bắt đầu và ngày kết thúc không được để trống");
         }
         if (!form.endDate().isAfter(form.startDate())) {
-            throw new BusinessException("Ngay ket thuc phai sau ngay bat dau");
+            throw new BusinessException("Ngày kết thúc phải sau ngày bắt đầu");
         }
         if (form.usageLimit() != null && form.usageLimit() < 0) {
-            throw new BusinessException("Gioi han luot dung khong duoc am");
+            throw new BusinessException("Giới hạn lượt dùng không được âm");
         }
     }
 
@@ -167,19 +167,19 @@ public class PromotionService {
         LocalDateTime now = LocalDateTime.now();
 
         if (!Boolean.TRUE.equals(promotion.getActive())) {
-            throw new BusinessException("Ma khuyen mai da bi tat");
+            throw new BusinessException("Mã khuyến mãi đã bị tắt");
         }
 
         if (now.isBefore(promotion.getStartDate()) || now.isAfter(promotion.getEndDate())) {
-            throw new BusinessException("Ma khuyen mai khong nam trong thoi gian ap dung");
+            throw new BusinessException("Mã khuyến mãi không nằm trong thời gian áp dụng");
         }
 
         if (promotion.getUsageLimit() != null && promotion.getUsedCount() >= promotion.getUsageLimit()) {
-            throw new BusinessException("Ma khuyen mai da het luot su dung");
+            throw new BusinessException("Mã khuyến mãi đã hết lượt sử dụng");
         }
 
         if (subtotal.compareTo(promotion.getMinOrderAmount()) < 0) {
-            throw new BusinessException("Don hang chua dat gia tri toi thieu de dung ma khuyen mai");
+            throw new BusinessException("Đơn hàng chưa đạt giá trị tối thiểu để dùng mã khuyến mãi");
         }
     }
 

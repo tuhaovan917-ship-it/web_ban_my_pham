@@ -1,6 +1,8 @@
 package do_an_java.quan_ly_my_pham.controller;
 
 import do_an_java.quan_ly_my_pham.model.Product;
+import do_an_java.quan_ly_my_pham.repository.BrandRepository;
+import do_an_java.quan_ly_my_pham.repository.CategoryRepository;
 import do_an_java.quan_ly_my_pham.service.ProductService;
 import do_an_java.quan_ly_my_pham.service.ReviewService;
 import do_an_java.quan_ly_my_pham.service.dto.ProductFilter;
@@ -18,6 +20,8 @@ import java.math.BigDecimal;
 public class ProductController {
     private final ProductService productService;
     private final ReviewService reviewService;
+    private final CategoryRepository categoryRepository;
+    private final BrandRepository brandRepository;
 
     @GetMapping("/")
     public String home(Model model) {
@@ -47,6 +51,8 @@ public class ProductController {
         ProductFilter filter = new ProductFilter(keyword, categoryId, brandId, minPrice, maxPrice, featured, sort);
         model.addAttribute("products", productService.filter(filter));
         model.addAttribute("filter", filter);
+        model.addAttribute("categories", categoryRepository.findByActiveTrueOrderByNameAsc());
+        model.addAttribute("brands", brandRepository.findByActiveTrueOrderByNameAsc());
         return "products";
     }
 

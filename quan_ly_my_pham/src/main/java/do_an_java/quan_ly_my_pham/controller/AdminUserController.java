@@ -37,11 +37,11 @@ public class AdminUserController {
         try {
             User admin = currentUser.requireUser(authentication);
             if (admin.getId().equals(id)) {
-                throw new BusinessException("Khong the khoa tai khoan dang dang nhap");
+                throw new BusinessException("Không thể khóa tài khoản đang đăng nhập");
             }
 
             User user = userService.lockUser(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Da khoa tai khoan " + user.getUserName());
+            redirectAttributes.addFlashAttribute("successMessage", "Đã khóa tài khoản " + user.getUserName());
         } catch (BusinessException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
@@ -52,7 +52,7 @@ public class AdminUserController {
     @PostMapping("/{id}/unlock")
     public String unlockUser(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         User user = userService.unlockUser(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Da mo khoa tai khoan " + user.getUserName());
+        redirectAttributes.addFlashAttribute("successMessage", "Đã mở khóa tài khoản " + user.getUserName());
         return "redirect:/admin/users";
     }
 }

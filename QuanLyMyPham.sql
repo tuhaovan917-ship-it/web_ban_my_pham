@@ -1,7 +1,16 @@
 /*==============================================================
   Database: QuanLyMyPham
   DBMS: SQL Server
-  Purpose: Cosmetics e-commerce management system
+  Purpose: Khoi tao day du CSDL cho he thong quan ly ban my pham
+
+  Cach dung:
+  1. Mo SQL Server Management Studio.
+  2. Chay toan bo file nay.
+  3. Khoi dong ung dung Spring Boot de DataSeeder tao tai khoan demo.
+
+  Tai khoan demo do DataSeeder tao:
+  - admin / admin123
+  - customer01 / customer123
 ==============================================================*/
 
 IF DB_ID(N'QuanLyMyPham') IS NULL
@@ -13,7 +22,7 @@ GO
 USE QuanLyMyPham;
 GO
 
-/* Drop tables in dependency order */
+/* Xoa bang cu theo thu tu phu thuoc */
 IF OBJECT_ID(N'dbo.OrderStatusHistories', N'U') IS NOT NULL DROP TABLE dbo.OrderStatusHistories;
 IF OBJECT_ID(N'dbo.Payments', N'U') IS NOT NULL DROP TABLE dbo.Payments;
 IF OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL DROP TABLE dbo.Reviews;
@@ -31,22 +40,22 @@ GO
 
 CREATE TABLE dbo.Users
 (
-    user_id     INT IDENTITY(1,1) NOT NULL,
-    user_name   NVARCHAR(50)      NOT NULL,
-    password    VARCHAR(255)      NOT NULL,
-    full_name   NVARCHAR(100)     NOT NULL,
-    email       VARCHAR(100)      NOT NULL,
-    phone       VARCHAR(15)       NULL,
-    address     NVARCHAR(255)     NULL,
-    role        VARCHAR(20)       NOT NULL CONSTRAINT DF_Users_role DEFAULT ('CUSTOMER'),
-    is_active   BIT               NOT NULL CONSTRAINT DF_Users_is_active DEFAULT (1),
-    created_at  DATETIME2(0)      NOT NULL CONSTRAINT DF_Users_created_at DEFAULT (SYSDATETIME()),
-    updated_at  DATETIME2(0)      NULL,
+    user_id    INT IDENTITY(1,1) NOT NULL,
+    user_name  NVARCHAR(50)      NOT NULL,
+    password   VARCHAR(255)      NOT NULL,
+    full_name  NVARCHAR(100)     NOT NULL,
+    email      VARCHAR(100)      NOT NULL,
+    phone      VARCHAR(10)       NULL,
+    address    NVARCHAR(255)     NULL,
+    role       VARCHAR(20)       NOT NULL CONSTRAINT DF_Users_role DEFAULT ('CUSTOMER'),
+    is_active  BIT               NOT NULL CONSTRAINT DF_Users_is_active DEFAULT (1),
+    created_at DATETIME2(0)      NOT NULL CONSTRAINT DF_Users_created_at DEFAULT (SYSDATETIME()),
+    updated_at DATETIME2(0)      NULL,
     CONSTRAINT PK_Users PRIMARY KEY (user_id),
     CONSTRAINT UQ_Users_user_name UNIQUE (user_name),
     CONSTRAINT UQ_Users_email UNIQUE (email),
     CONSTRAINT CK_Users_role CHECK (role IN ('ADMIN', 'CUSTOMER')),
-    CONSTRAINT CK_Users_phone CHECK (phone IS NULL OR phone NOT LIKE '%[^0-9]%')
+    CONSTRAINT CK_Users_phone CHECK (phone IS NULL OR (LEN(phone) = 10 AND phone NOT LIKE '%[^0-9]%'))
 );
 GO
 
@@ -166,27 +175,27 @@ GO
 
 CREATE TABLE dbo.Orders
 (
-    order_id          INT IDENTITY(1,1) NOT NULL,
-    user_id           INT               NOT NULL,
-    promotion_id      INT               NULL,
-    order_date        DATETIME2(0)      NOT NULL CONSTRAINT DF_Orders_order_date DEFAULT (SYSDATETIME()),
-    status            VARCHAR(30)       NOT NULL CONSTRAINT DF_Orders_status DEFAULT ('PENDING_CONFIRMATION'),
-    receiver_name     NVARCHAR(100)     NOT NULL,
-    receiver_phone    VARCHAR(15)       NOT NULL,
-    shipping_address  NVARCHAR(255)     NOT NULL,
-    payment_method    VARCHAR(20)       NOT NULL,
-    subtotal_amount   DECIMAL(18,2)     NOT NULL,
-    discount_amount   DECIMAL(18,2)     NOT NULL CONSTRAINT DF_Orders_discount_amount DEFAULT (0),
-    shipping_fee      DECIMAL(18,2)     NOT NULL CONSTRAINT DF_Orders_shipping_fee DEFAULT (0),
-    total_amount      DECIMAL(18,2)     NOT NULL,
-    note              NVARCHAR(255)     NULL,
-    created_at        DATETIME2(0)      NOT NULL CONSTRAINT DF_Orders_created_at DEFAULT (SYSDATETIME()),
-    updated_at        DATETIME2(0)      NULL,
+    order_id         INT IDENTITY(1,1) NOT NULL,
+    user_id          INT               NOT NULL,
+    promotion_id     INT               NULL,
+    order_date       DATETIME2(0)      NOT NULL CONSTRAINT DF_Orders_order_date DEFAULT (SYSDATETIME()),
+    status           VARCHAR(30)       NOT NULL CONSTRAINT DF_Orders_status DEFAULT ('PENDING_CONFIRMATION'),
+    receiver_name    NVARCHAR(100)     NOT NULL,
+    receiver_phone   VARCHAR(10)       NOT NULL,
+    shipping_address NVARCHAR(255)     NOT NULL,
+    payment_method   VARCHAR(20)       NOT NULL,
+    subtotal_amount  DECIMAL(18,2)     NOT NULL,
+    discount_amount  DECIMAL(18,2)     NOT NULL CONSTRAINT DF_Orders_discount_amount DEFAULT (0),
+    shipping_fee     DECIMAL(18,2)     NOT NULL CONSTRAINT DF_Orders_shipping_fee DEFAULT (0),
+    total_amount     DECIMAL(18,2)     NOT NULL,
+    note             NVARCHAR(255)     NULL,
+    created_at       DATETIME2(0)      NOT NULL CONSTRAINT DF_Orders_created_at DEFAULT (SYSDATETIME()),
+    updated_at       DATETIME2(0)      NULL,
     CONSTRAINT PK_Orders PRIMARY KEY (order_id),
     CONSTRAINT FK_Orders_Users FOREIGN KEY (user_id) REFERENCES dbo.Users(user_id),
     CONSTRAINT FK_Orders_Promotions FOREIGN KEY (promotion_id) REFERENCES dbo.Promotions(promotion_id),
     CONSTRAINT CK_Orders_status CHECK (status IN ('PAYMENT_IN_PROGRESS', 'PENDING_CONFIRMATION', 'CONFIRMED', 'SHIPPING', 'COMPLETED', 'CANCELLED')),
-    CONSTRAINT CK_Orders_receiver_phone CHECK (receiver_phone NOT LIKE '%[^0-9]%'),
+    CONSTRAINT CK_Orders_receiver_phone CHECK (LEN(receiver_phone) = 10 AND receiver_phone NOT LIKE '%[^0-9]%'),
     CONSTRAINT CK_Orders_payment_method CHECK (payment_method IN ('COD', 'CARD', 'EWALLET')),
     CONSTRAINT CK_Orders_amounts CHECK (
         subtotal_amount >= 0
@@ -282,35 +291,35 @@ CREATE INDEX IX_Orders_order_date ON dbo.Orders(order_date DESC);
 CREATE INDEX IX_Reviews_product ON dbo.Reviews(product_id);
 GO
 
-INSERT INTO dbo.Users (user_name, password, full_name, email, phone, role)
-VALUES
-('admin', '$2a$10$replace_with_bcrypt_hash', N'Administrator', 'admin@example.com', '0900000000', 'ADMIN'),
-('customer01', '$2a$10$replace_with_bcrypt_hash', N'Demo Customer', 'customer01@example.com', '0911111111', 'CUSTOMER');
-
+/* Du lieu nen cho cua hang */
 INSERT INTO dbo.Categories (category_name, description)
 VALUES
-(N'Skincare', N'Facial skincare products'),
-(N'Makeup', N'Cosmetics and makeup products'),
-(N'Haircare', N'Hair care products'),
-(N'Fragrance', N'Perfume and fragrance products');
+(N'Chăm sóc da', N'Sản phẩm dưỡng da, làm sạch và phục hồi da'),
+(N'Trang điểm', N'Sản phẩm trang điểm cho mặt, môi và mắt'),
+(N'Chăm sóc tóc', N'Dầu gội, dầu xả và sản phẩm phục hồi tóc'),
+(N'Nước hoa', N'Nước hoa và sản phẩm tạo hương thơm');
+GO
 
 INSERT INTO dbo.Brands (brand_name, description)
 VALUES
-(N'Innisfree', N'Cosmetics brand'),
-(N'Maybelline', N'Cosmetics brand'),
-(N'LOreal', N'Cosmetics brand'),
-(N'Cocoon', N'Cosmetics brand');
+(N'Innisfree', N'Thương hiệu mỹ phẩm chăm sóc da'),
+(N'Maybelline', N'Thương hiệu mỹ phẩm trang điểm'),
+(N'LOreal', N'Thương hiệu chăm sóc tóc và làm đẹp'),
+(N'Cocoon', N'Thương hiệu mỹ phẩm thuần chay Việt Nam'),
+(N'Chính hãng', N'Nhóm sản phẩm chính hãng nhiều thương hiệu');
+GO
 
 INSERT INTO dbo.Products
 (
     category_id, brand_id, name, price, sale_price, stock_quantity,
-    description, main_image_path, is_featured
+    description, main_image_path, is_featured, is_active
 )
 VALUES
-(1, 1, N'Green Tea Seed Serum', 350000, 315000, 20, N'Hydrating facial serum', N'/uploads/products/green-tea-serum.jpg', 1),
-(2, 2, N'Fit Me Foundation', 250000, NULL, 15, N'Liquid foundation for daily makeup', N'/uploads/products/fit-me-foundation.jpg', 1),
-(1, 4, N'Rose Gel Cleanser', 195000, 175000, 4, N'Gentle facial cleanser', N'/uploads/products/rose-cleanser.jpg', 0),
-(3, 3, N'Hair Repair Shampoo', 180000, NULL, 8, N'Shampoo for damaged hair', N'/uploads/products/hair-repair-shampoo.jpg', 0);
+(1, 1, N'Green Tea Seed Serum', 350000, 315000, 20, N'Tinh chất dưỡng ẩm trà xanh, phù hợp chăm sóc da hằng ngày.', N'/uploads/products/green-tea-serum.jpg', 1, 1),
+(2, 2, N'Fit Me Foundation', 250000, NULL, 15, N'Kem nền mỏng nhẹ, hỗ trợ làm đều màu da.', N'/uploads/products/fit-me-foundation.jpg', 1, 1),
+(1, 4, N'Rose Gel Cleanser', 195000, 175000, 4, N'Sữa rửa mặt dạng gel dịu nhẹ cho da.', N'/uploads/products/rose-cleanser.jpg', 0, 1),
+(3, 3, N'Hair Repair Shampoo', 180000, NULL, 8, N'Dầu gội hỗ trợ phục hồi tóc hư tổn.', N'/uploads/products/hair-repair-shampoo.jpg', 0, 1);
+GO
 
 INSERT INTO dbo.ProductImages (product_id, image_path, display_order, is_main)
 VALUES
@@ -318,13 +327,17 @@ VALUES
 (2, N'/uploads/products/fit-me-foundation.jpg', 1, 1),
 (3, N'/uploads/products/rose-cleanser.jpg', 1, 1),
 (4, N'/uploads/products/hair-repair-shampoo.jpg', 1, 1);
+GO
 
 INSERT INTO dbo.Promotions
 (
     code, description, discount_type, discount_value, min_order_amount,
-    max_discount, start_date, end_date, usage_limit
+    max_discount, start_date, end_date, usage_limit, used_count, is_active
 )
 VALUES
-('WELCOME10', N'Discount 10 percent for first order', 'PERCENT', 10, 200000, 50000, '2026-01-01', '2026-12-31', 100),
-('FREESHIP30', N'Discount fixed amount for shipping support', 'FIXED', 30000, 300000, NULL, '2026-01-01', '2026-12-31', 200);
+('WELCOME10', N'Giảm 10% cho đơn hàng từ 200.000 đ', 'PERCENT', 10, 200000, 50000, '2026-01-01', '2026-12-31', 100, 0, 1),
+('FREESHIP30', N'Giảm 30.000 đ cho đơn hàng từ 300.000 đ', 'FIXED', 30000, 300000, NULL, '2026-01-01', '2026-12-31', 200, 0, 1);
+GO
+
+PRINT N'Da khoi tao xong database QuanLyMyPham. Hay khoi dong ung dung de DataSeeder tao tai khoan demo.';
 GO

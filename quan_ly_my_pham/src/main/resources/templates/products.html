@@ -3,7 +3,6 @@
 <head th:replace="~{layout/fragments :: html_head('Sản phẩm')}"></head>
 <body>
 
-<!-- Header dùng chung -->
 <header th:replace="~{layout/fragments :: header('products')}"></header>
 
 <main class="container">
@@ -13,34 +12,47 @@
         </h1>
     </div>
 
-    <!-- Bộ lọc tìm kiếm thông minh -->
     <form class="filter-panel" th:action="@{/products}" method="get">
         <div class="filter-grid">
             <div class="form-group">
                 <label for="keyword"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</label>
                 <input id="keyword" name="keyword" class="form-control" type="text" placeholder="Tên sản phẩm..." th:value="${filter.keyword()}">
             </div>
-            
+
             <div class="form-group">
-                <label for="categoryId"><i class="fa-solid fa-folder"></i> Mã danh mục</label>
-                <input id="categoryId" name="categoryId" class="form-control" type="number" placeholder="Ví dụ: 1" th:value="${filter.categoryId()}">
+                <label for="categoryId"><i class="fa-solid fa-folder"></i> Danh mục</label>
+                <select id="categoryId" name="categoryId" class="form-control">
+                    <option value="">Tất cả danh mục</option>
+                    <option th:each="category : ${categories}"
+                            th:value="${category.id}"
+                            th:selected="${filter.categoryId() != null && filter.categoryId() == category.id}"
+                            th:text="${category.name}">
+                    </option>
+                </select>
             </div>
-            
+
             <div class="form-group">
-                <label for="brandId"><i class="fa-solid fa-copyright"></i> Mã thương hiệu</label>
-                <input id="brandId" name="brandId" class="form-control" type="number" placeholder="Ví dụ: 1" th:value="${filter.brandId()}">
+                <label for="brandId"><i class="fa-solid fa-award"></i> Thương hiệu</label>
+                <select id="brandId" name="brandId" class="form-control">
+                    <option value="">Tất cả thương hiệu</option>
+                    <option th:each="brand : ${brands}"
+                            th:value="${brand.id}"
+                            th:selected="${filter.brandId() != null && filter.brandId() == brand.id}"
+                            th:text="${brand.name}">
+                    </option>
+                </select>
             </div>
-            
+
             <div class="form-group">
-                <label for="minPrice"><i class="fa-solid fa-dollar-sign"></i> Giá từ (đ)</label>
+                <label for="minPrice"><i class="fa-solid fa-money-bill"></i> Giá từ (đ)</label>
                 <input id="minPrice" name="minPrice" class="form-control" type="number" min="0" placeholder="0" th:value="${filter.minPrice()}">
             </div>
-            
+
             <div class="form-group">
-                <label for="maxPrice"><i class="fa-solid fa-dollar-sign"></i> Giá đến (đ)</label>
+                <label for="maxPrice"><i class="fa-solid fa-money-bill-wave"></i> Giá đến (đ)</label>
                 <input id="maxPrice" name="maxPrice" class="form-control" type="number" min="0" placeholder="Đến..." th:value="${filter.maxPrice()}">
             </div>
-            
+
             <div class="form-group">
                 <label for="sort"><i class="fa-solid fa-arrow-down-wide-short"></i> Sắp xếp</label>
                 <select id="sort" name="sort" class="form-control">
@@ -51,7 +63,7 @@
                     <option value="name_desc" th:selected="${filter.sort() == 'name_desc'}">Tên Z-A</option>
                 </select>
             </div>
-            
+
             <div style="display: flex; gap: 8px;">
                 <button type="submit" class="btn btn-primary" style="flex-grow: 1;">
                     <i class="fa-solid fa-filter"></i> Lọc
@@ -63,39 +75,37 @@
         </div>
     </form>
 
-    <!-- Thông báo nếu không có sản phẩm -->
     <div th:if="${#lists.isEmpty(products)}" class="alert alert-error" style="text-align: center; justify-content: center; padding: 30px;">
         <i class="fa-solid fa-triangle-exclamation fa-2x"></i>
         <span>Không tìm thấy sản phẩm nào phù hợp với bộ lọc của bạn.</span>
     </div>
 
-    <!-- Danh sách sản phẩm dạng Grid -->
     <section class="product-grid" th:if="${!#lists.isEmpty(products)}">
         <article class="product-card" th:each="p : ${products}">
-            <div class="product-badge-sale" th:if="${p.salePrice != null}">SALE</div>
-            
+            <div class="product-badge-sale" th:if="${p.salePrice != null}">Giảm giá</div>
+
             <div class="product-image-container">
-                <img class="product-image" th:if="${p.mainImagePath != null && !p.mainImagePath.isBlank()}" th:src="@{${p.mainImagePath}}" alt="Product Image">
+                <img class="product-image" th:if="${p.mainImagePath != null && !p.mainImagePath.isBlank()}" th:src="@{${p.mainImagePath}}" alt="Ảnh sản phẩm">
                 <div class="product-image" th:unless="${p.mainImagePath != null && !p.mainImagePath.isBlank()}" style="display: flex; align-items: center; justify-content: center; background: #e2e8f0; color: #94a3b8;">
                     <i class="fa-regular fa-image fa-3x"></i>
                 </div>
             </div>
-            
-            <div class="product-brand" th:text="${p.brand != null ? p.brand.name : 'Cosmetics'}">Brand</div>
+
+            <div class="product-brand" th:text="${p.brand != null ? p.brand.name : 'Mỹ phẩm'}">Thương hiệu</div>
             <h3 class="product-name">
                 <a th:href="@{/product/{id}(id=${p.id})}" th:text="${p.name}"></a>
             </h3>
-            
+
             <div class="product-price-wrapper">
                 <span class="product-price" th:text="${#numbers.formatDecimal(p.salePrice != null ? p.salePrice : p.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
                 <span class="product-old-price" th:if="${p.salePrice != null}" th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
             </div>
-            
+
             <div class="product-stock" th:classappend="${p.stockQuantity < 5} ? 'low-stock' : ''">
                 <i class="fa-solid" th:classappend="${p.stockQuantity > 0} ? 'fa-boxes-stacked' : 'fa-circle-xmark'"></i>
                 <span th:text="${p.stockQuantity > 0} ? 'Còn lại: ' + ${p.stockQuantity} : 'Hết hàng'"></span>
             </div>
-            
+
             <a th:href="@{/product/{id}(id=${p.id})}" class="btn btn-outline" style="margin-top: 12px; width: 100%;">
                 <i class="fa-solid fa-eye"></i> Xem chi tiết
             </a>
@@ -103,7 +113,6 @@
     </section>
 </main>
 
-<!-- Footer dùng chung -->
 <footer th:replace="~{layout/fragments :: footer}"></footer>
 
 </body>

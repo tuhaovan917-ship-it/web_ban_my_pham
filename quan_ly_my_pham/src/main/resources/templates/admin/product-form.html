@@ -8,7 +8,7 @@
     <main class="admin-main">
         <header class="admin-navbar">
             <div class="admin-page-title">
-                <h1 th:text="${pageTitle}">Sản phẩm</h1>
+                <h1><i class="fa-solid fa-bottle-droplet" style="color: var(--primary);"></i> <span th:text="${pageTitle}">Sản phẩm</span></h1>
                 <p>Quản lý thông tin bán hàng, tồn kho và ảnh đại diện.</p>
             </div>
             <a th:href="@{/admin/products}" class="btn btn-secondary">
@@ -37,9 +37,10 @@
                                 <option th:each="category : ${categories}"
                                         th:value="${category.id}"
                                         th:selected="${product != null && product.category != null && product.category.id == category.id}"
-                                        th:text="${category.name}">
+                                        th:text="${category.active ? category.name : category.name + ' (đang tạm ẩn)'}">
                                 </option>
                             </select>
+                            <span class="muted-text">Sản phẩm chỉ hiện ở cửa hàng khi danh mục đang dùng.</span>
                         </div>
                     </div>
 
@@ -51,9 +52,10 @@
                                 <option th:each="brand : ${brands}"
                                         th:value="${brand.id}"
                                         th:selected="${product != null && product.brand != null && product.brand.id == brand.id}"
-                                        th:text="${brand.name}">
+                                        th:text="${brand.active ? brand.name : brand.name + ' (đang tạm ẩn)'}">
                                 </option>
                             </select>
+                            <span class="muted-text">Nếu thương hiệu đang tạm ẩn, sản phẩm sẽ chưa hiện ở cửa hàng.</span>
                         </div>
                         <div class="form-group">
                             <label for="stockQuantity">Số lượng tồn</label>

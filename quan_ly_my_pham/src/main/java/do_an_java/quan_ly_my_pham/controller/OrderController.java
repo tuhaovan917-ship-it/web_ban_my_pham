@@ -64,7 +64,7 @@ public class OrderController {
         User user = currentUser.requireUser(authentication);
         try {
             orderService.cancelByCustomer(id, user.getId());
-            redirectAttributes.addFlashAttribute("successMessage", "Da huy don hang");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã hủy đơn hàng");
         } catch (BusinessException | NotFoundException exception) {
             redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
         }
@@ -83,7 +83,7 @@ public class OrderController {
         User user = currentUser.requireUser(authentication);
         try {
             reviewService.createReview(user.getId(), id, productId, stars, comment);
-            redirectAttributes.addFlashAttribute("successMessage", "Da gui danh gia, vui long cho admin duyet");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã gửi đánh giá, vui lòng chờ quản trị viên duyệt");
         } catch (BusinessException | NotFoundException exception) {
             redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
         }

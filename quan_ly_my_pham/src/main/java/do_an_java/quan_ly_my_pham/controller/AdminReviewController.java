@@ -36,7 +36,7 @@ public class AdminReviewController {
         Review review = reviewService.updateStatus(id, status);
         redirectAttributes.addFlashAttribute(
             "successMessage",
-            "Da cap nhat danh gia #" + review.getId() + " sang " + review.getStatus()
+            "Đã cập nhật đánh giá " + review.getId() + " sang " + review.getStatus().getDisplayName()
         );
         return "redirect:/admin/reviews";
     }
@@ -44,7 +44,7 @@ public class AdminReviewController {
     @PostMapping("/{id}/delete")
     public String deleteReview(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         reviewService.deleteReview(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Da xoa danh gia");
+        redirectAttributes.addFlashAttribute("successMessage", "Đã xóa đánh giá");
         return "redirect:/admin/reviews";
     }
 }

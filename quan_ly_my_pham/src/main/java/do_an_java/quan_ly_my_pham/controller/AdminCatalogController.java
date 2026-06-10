@@ -30,7 +30,7 @@ public class AdminCatalogController {
     public String newCategory(Model model) {
         model.addAttribute("category", null);
         model.addAttribute("actionUrl", "/admin/categories");
-        model.addAttribute("pageTitle", "Them danh muc");
+        model.addAttribute("pageTitle", "Thêm danh mục");
         return "admin/category-form";
     }
 
@@ -43,7 +43,7 @@ public class AdminCatalogController {
     ) {
         try {
             catalogAdminService.createCategory(new CategoryForm(name, description, active));
-            redirectAttributes.addFlashAttribute("successMessage", "Da them danh muc");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã thêm danh mục");
             return "redirect:/admin/categories";
         } catch (BusinessException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
@@ -55,7 +55,7 @@ public class AdminCatalogController {
     public String editCategory(@PathVariable Integer id, Model model) {
         model.addAttribute("category", catalogAdminService.findCategory(id));
         model.addAttribute("actionUrl", "/admin/categories/" + id);
-        model.addAttribute("pageTitle", "Sua danh muc");
+        model.addAttribute("pageTitle", "Sửa danh mục");
         return "admin/category-form";
     }
 
@@ -69,7 +69,7 @@ public class AdminCatalogController {
     ) {
         try {
             catalogAdminService.updateCategory(id, new CategoryForm(name, description, active));
-            redirectAttributes.addFlashAttribute("successMessage", "Da cap nhat danh muc");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã cập nhật danh mục");
             return "redirect:/admin/categories";
         } catch (BusinessException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
@@ -82,7 +82,7 @@ public class AdminCatalogController {
         boolean deleted = catalogAdminService.deleteCategory(id);
         redirectAttributes.addFlashAttribute(
             "successMessage",
-            deleted ? "Da xoa danh muc" : "Danh muc dang co san pham nen he thong da tam an danh muc"
+            deleted ? "Đã xóa danh mục" : "Danh mục đang có sản phẩm nên hệ thống đã tạm ẩn danh mục"
         );
         return "redirect:/admin/categories";
     }
@@ -97,7 +97,7 @@ public class AdminCatalogController {
     public String newBrand(Model model) {
         model.addAttribute("brand", null);
         model.addAttribute("actionUrl", "/admin/brands");
-        model.addAttribute("pageTitle", "Them thuong hieu");
+        model.addAttribute("pageTitle", "Thêm thương hiệu");
         return "admin/brand-form";
     }
 
@@ -110,7 +110,7 @@ public class AdminCatalogController {
     ) {
         try {
             catalogAdminService.createBrand(new BrandForm(name, description, active));
-            redirectAttributes.addFlashAttribute("successMessage", "Da them thuong hieu");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã thêm thương hiệu");
             return "redirect:/admin/brands";
         } catch (BusinessException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
@@ -122,7 +122,7 @@ public class AdminCatalogController {
     public String editBrand(@PathVariable Integer id, Model model) {
         model.addAttribute("brand", catalogAdminService.findBrand(id));
         model.addAttribute("actionUrl", "/admin/brands/" + id);
-        model.addAttribute("pageTitle", "Sua thuong hieu");
+        model.addAttribute("pageTitle", "Sửa thương hiệu");
         return "admin/brand-form";
     }
 
@@ -136,7 +136,7 @@ public class AdminCatalogController {
     ) {
         try {
             catalogAdminService.updateBrand(id, new BrandForm(name, description, active));
-            redirectAttributes.addFlashAttribute("successMessage", "Da cap nhat thuong hieu");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã cập nhật thương hiệu");
             return "redirect:/admin/brands";
         } catch (BusinessException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
@@ -149,7 +149,7 @@ public class AdminCatalogController {
         boolean deleted = catalogAdminService.deleteBrand(id);
         redirectAttributes.addFlashAttribute(
             "successMessage",
-            deleted ? "Da xoa thuong hieu" : "Thuong hieu dang co san pham nen he thong da tam an thuong hieu"
+            deleted ? "Đã xóa thương hiệu" : "Thương hiệu đang có sản phẩm nên hệ thống đã tạm ẩn thương hiệu"
         );
         return "redirect:/admin/brands";
     }

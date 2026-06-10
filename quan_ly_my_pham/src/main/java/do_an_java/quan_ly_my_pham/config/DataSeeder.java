@@ -16,8 +16,8 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        seedUser("admin", "admin123", "Administrator", "admin@example.com", "0900000000", UserRole.ADMIN);
-        seedUser("customer01", "customer123", "Demo Customer", "customer01@example.com", "0911111111", UserRole.CUSTOMER);
+        seedUser("admin", "admin123", "Quản trị viên", "admin@example.com", "0900000000", UserRole.ADMIN);
+        seedUser("customer01", "customer123", "Khách hàng mẫu", "customer01@example.com", "0911111111", UserRole.CUSTOMER);
     }
 
     private void seedUser(

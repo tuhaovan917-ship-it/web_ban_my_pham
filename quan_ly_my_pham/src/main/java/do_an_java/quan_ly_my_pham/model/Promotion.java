@@ -32,8 +32,8 @@ public class Promotion {
     @Column(name = "promotion_id")
     private Integer id;
 
-    @NotBlank(message = "Ma khuyen mai khong duoc de trong")
-    @Size(max = 30, message = "Ma khuyen mai toi da 30 ky tu")
+    @NotBlank(message = "Mã khuyến mãi không được để trống")
+    @Size(max = 30, message = "Mã khuyến mãi tối đa 30 ký tự")
     @Column(name = "code", nullable = false, unique = true, length = 30)
     private String code;
 

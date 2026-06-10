@@ -4,6 +4,8 @@ import do_an_java.quan_ly_my_pham.model.Brand;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface BrandRepository extends JpaRepository<Brand, Integer> {
     boolean existsByName(String name);
@@ -11,4 +13,6 @@ public interface BrandRepository extends JpaRepository<Brand, Integer> {
     boolean existsByNameIgnoreCase(String name);
 
     boolean existsByNameIgnoreCaseAndIdNot(String name, Integer id);
+
+    List<Brand> findByActiveTrueOrderByNameAsc();
 }

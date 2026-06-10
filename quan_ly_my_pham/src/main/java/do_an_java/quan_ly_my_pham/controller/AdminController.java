@@ -62,7 +62,7 @@ public class AdminController {
         try {
             User admin = currentUser.requireUser(authentication);
             orderService.updateStatus(id, status, admin.getId(), note);
-            redirectAttributes.addFlashAttribute("successMessage", "Da cap nhat trang thai don hang");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã cập nhật trạng thái đơn hàng");
         } catch (BusinessException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }

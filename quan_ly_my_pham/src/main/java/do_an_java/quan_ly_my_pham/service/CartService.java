@@ -29,7 +29,7 @@ public class CartService {
     public Cart getOrCreateCart(Integer userId) {
         return cartRepository.findByUserId(userId).orElseGet(() -> {
             User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Khong tim thay nguoi dung"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng"));
             Cart cart = new Cart();
             cart.setUser(user);
             return cartRepository.save(cart);
@@ -47,10 +47,10 @@ public class CartService {
 
         Cart cart = getOrCreateCart(userId);
         Product product = productRepository.findById(productId)
-            .orElseThrow(() -> new NotFoundException("Khong tim thay san pham"));
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm"));
 
         if (!Boolean.TRUE.equals(product.getActive())) {
-            throw new BusinessException("San pham dang khong duoc ban");
+            throw new BusinessException("Sản phẩm đang không được bán");
         }
 
         CartItem item = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId)
@@ -78,7 +78,7 @@ public class CartService {
 
         Cart cart = getOrCreateCart(userId);
         CartItem item = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId)
-            .orElseThrow(() -> new NotFoundException("San pham khong co trong gio hang"));
+            .orElseThrow(() -> new NotFoundException("Sản phẩm không có trong giỏ hàng"));
 
         ensureStockAvailable(item.getProduct(), quantity);
         item.setQuantity(quantity);
@@ -91,7 +91,7 @@ public class CartService {
     public void removeItem(Integer userId, Integer productId) {
         Cart cart = getOrCreateCart(userId);
         CartItem item = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId)
-            .orElseThrow(() -> new NotFoundException("San pham khong co trong gio hang"));
+            .orElseThrow(() -> new NotFoundException("Sản phẩm không có trong giỏ hàng"));
 
         cartItemRepository.delete(item);
         cart.setUpdatedAt(LocalDateTime.now());

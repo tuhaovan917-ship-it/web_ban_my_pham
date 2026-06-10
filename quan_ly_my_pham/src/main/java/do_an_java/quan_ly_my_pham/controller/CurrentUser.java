@@ -18,6 +18,6 @@ public class CurrentUser {
         }
 
         return userRepository.findByUserName(authentication.getName())
-            .orElseThrow(() -> new NotFoundException("Khong tim thay nguoi dung dang dang nhap"));
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng đang đăng nhập"));
     }
 }
