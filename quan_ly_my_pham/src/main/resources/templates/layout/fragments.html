@@ -26,7 +26,7 @@
                 <i class="fa-solid fa-gifts"></i> Sản phẩm
             </a>
 
-            <th:block th:if="${currentUser != null}">
+            <th:block th:if="${currentUser != null && currentUser.role.name() == 'CUSTOMER'}">
                 <a th:href="@{/cart}" class="nav-link" th:classappend="${activePage == 'cart' ? 'active' : ''}">
                     <i class="fa-solid fa-cart-shopping"></i> Giỏ hàng
                 </a>
@@ -48,10 +48,10 @@
 
             <th:block th:if="${currentUser != null}">
                 <div class="nav-user-info">
-                    <span class="nav-user-name">
+                    <a th:href="@{/profile}" class="nav-user-name" th:classappend="${activePage == 'profile' ? 'active' : ''}">
                         <i class="fa-solid fa-circle-user" style="color: var(--primary-dark)"></i>
                         <span th:text="${currentUser.fullName}">Người dùng</span>
-                    </span>
+                    </a>
                     <a th:if="${currentUser.role.name() == 'ADMIN'}" th:href="@{/admin}" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem">
                         <i class="fa-solid fa-toolbox"></i> Trang quản trị
                     </a>
@@ -75,7 +75,8 @@
         <div class="footer-links">
             <a th:href="@{/}" class="footer-link">Trang chủ</a>
             <a th:href="@{/products}" class="footer-link">Sản phẩm</a>
-            <a th:href="@{/cart}" class="footer-link">Giỏ hàng</a>
+            <a th:if="${currentUser != null && currentUser.role.name() == 'CUSTOMER'}" th:href="@{/cart}" class="footer-link">Giỏ hàng</a>
+            <a th:if="${currentUser != null}" th:href="@{/profile}" class="footer-link">Tài khoản</a>
         </div>
     </div>
     <div class="footer-copy">
@@ -135,7 +136,7 @@
 
         <li class="admin-menu-item">
             <a th:href="@{/}" target="_blank">
-                <i class="fa-solid fa-globe"></i> Xem cửa hàng
+                <i class="fa-solid fa-globe"></i> Xem giao diện cửa hàng
             </a>
         </li>
     </ul>
@@ -146,6 +147,9 @@
                 <i class="fa-solid fa-user-tie"></i>
                 <span th:text="${currentUser.fullName}">Quản trị viên</span>
             </div>
+            <a th:href="@{/profile}" class="btn btn-secondary" style="width: 100%; padding: 8px 14px; margin-bottom: 10px;">
+                <i class="fa-solid fa-id-card"></i> Thông tin cá nhân
+            </a>
             <form th:action="@{/logout}" method="post" style="width: 100%;">
                 <button type="submit" class="btn btn-danger" style="width: 100%; padding: 8px 14px;">
                     <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất

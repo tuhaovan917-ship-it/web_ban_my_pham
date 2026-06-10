@@ -32,12 +32,13 @@ public class SecurityConfig {
                 ).permitAll()
                 .requestMatchers(pathPattern("/home")).hasAnyRole("CUSTOMER", "ADMIN")
                 .requestMatchers(pathPattern("/admin/**")).hasRole("ADMIN")
+                .requestMatchers(pathPattern("/profile/**")).hasAnyRole("CUSTOMER", "ADMIN")
                 .requestMatchers(
                     pathPattern("/cart/**"),
                     pathPattern("/checkout/**"),
                     pathPattern("/orders/**"),
                     pathPattern("/reviews/**")
-                ).hasAnyRole("CUSTOMER", "ADMIN")
+                ).hasRole("CUSTOMER")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

@@ -14,7 +14,7 @@ public class CurrentUser {
 
     public User requireUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new NotFoundException("Ban chua dang nhap");
+            throw new NotFoundException("Bạn chưa đăng nhập");
         }
 
         return userRepository.findByUserName(authentication.getName())
