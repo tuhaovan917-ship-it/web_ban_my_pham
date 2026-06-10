@@ -33,12 +33,12 @@ public class CatalogAdminService {
 
     public Category findCategory(Integer id) {
         return categoryRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Khong tim thay danh muc"));
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy danh mục"));
     }
 
     public Brand findBrand(Integer id) {
         return brandRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Khong tim thay thuong hieu"));
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy thương hiệu"));
     }
 
     @Transactional
@@ -105,33 +105,33 @@ public class CatalogAdminService {
 
     private void validateCategory(CategoryForm form, Integer currentId) {
         if (form.name() == null || form.name().isBlank()) {
-            throw new BusinessException("Ten danh muc khong duoc de trong");
+            throw new BusinessException("Tên danh mục không được để trống");
         }
         if (form.name().trim().length() > 50) {
-            throw new BusinessException("Ten danh muc toi da 50 ky tu");
+            throw new BusinessException("Tên danh mục tối đa 50 ký tự");
         }
 
         boolean duplicated = currentId == null
             ? categoryRepository.existsByNameIgnoreCase(form.name().trim())
             : categoryRepository.existsByNameIgnoreCaseAndIdNot(form.name().trim(), currentId);
         if (duplicated) {
-            throw new BusinessException("Ten danh muc da ton tai");
+            throw new BusinessException("Tên danh mục đã tồn tại");
         }
     }
 
     private void validateBrand(BrandForm form, Integer currentId) {
         if (form.name() == null || form.name().isBlank()) {
-            throw new BusinessException("Ten thuong hieu khong duoc de trong");
+            throw new BusinessException("Tên thương hiệu không được để trống");
         }
         if (form.name().trim().length() > 80) {
-            throw new BusinessException("Ten thuong hieu toi da 80 ky tu");
+            throw new BusinessException("Tên thương hiệu tối đa 80 ký tự");
         }
 
         boolean duplicated = currentId == null
             ? brandRepository.existsByNameIgnoreCase(form.name().trim())
             : brandRepository.existsByNameIgnoreCaseAndIdNot(form.name().trim(), currentId);
         if (duplicated) {
-            throw new BusinessException("Ten thuong hieu da ton tai");
+            throw new BusinessException("Tên thương hiệu đã tồn tại");
         }
     }
 

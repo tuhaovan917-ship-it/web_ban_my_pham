@@ -8,7 +8,7 @@
     <main class="admin-main">
         <header class="admin-navbar">
             <div class="admin-page-title">
-                <h1 th:text="${pageTitle}">Khuyến mãi</h1>
+                <h1><i class="fa-solid fa-ticket" style="color: var(--primary);"></i> <span th:text="${pageTitle}">Khuyến mãi</span></h1>
                 <p>Thiết lập mã giảm giá theo phần trăm hoặc số tiền cố định.</p>
             </div>
             <a th:href="@{/admin/promotions}" class="btn btn-secondary">
@@ -36,7 +36,7 @@
                                 <option th:each="type : ${discountTypes}"
                                         th:value="${type}"
                                         th:selected="${promotion != null && promotion.discountType == type}"
-                                        th:text="${type}">
+                                        th:text="${type.displayName}">
                                 </option>
                             </select>
                         </div>

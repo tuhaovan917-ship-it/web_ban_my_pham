@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{layout/fragments :: html_head('Admin Dashboard')}"></head>
+<head th:replace="~{layout/fragments :: html_head('Tổng quan quản trị')}"></head>
 <body>
 
 <div class="admin-layout">
@@ -12,7 +12,7 @@
                 <i class="fa-solid fa-gauge-high" style="color: var(--primary); margin-right: 8px;"></i>HỆ THỐNG QUẢN TRỊ
             </span>
             <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
-                GlowCosmetics Dashboard &bull; Admin Panel
+                Mỹ Phẩm Glow &bull; Trang quản trị
             </div>
         </header>
 
@@ -73,7 +73,9 @@
                                     <span class="badge" th:classappend="${order.status.badgeClass}" th:text="${order.status.displayName}" style="padding: 3px 6px; font-size: 0.65rem;"></span>
                                 </td>
                                 <td>
-                                    <a th:href="@{/admin/orders/{id}(id=${order.id})}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;">Chi tiết</a>
+                                    <a th:href="@{/admin/orders/{id}(id=${order.id})}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;">
+                                        <i class="fa-solid fa-circle-info"></i> Chi tiết
+                                    </a>
                                 </td>
                             </tr>
                             <tr th:if="${#lists.isEmpty(recentOrders)}">
@@ -87,7 +89,7 @@
                 <section class="admin-card" style="margin: 0; padding: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
                         <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--dark); margin: 0;">
-                            <i class="fa-solid fa-triangle-exclamation" style="color: var(--error); margin-right: 6px;"></i> Cảnh báo hết hàng
+                            <i class="fa-solid fa-triangle-exclamation" style="color: var(--error); margin-right: 6px;"></i> Cảnh báo sắp hết hàng
                         </h2>
                         <a th:href="@{/admin/products}" style="font-size: 0.8rem; font-weight: 600;">Quản lý kho</a>
                     </div>

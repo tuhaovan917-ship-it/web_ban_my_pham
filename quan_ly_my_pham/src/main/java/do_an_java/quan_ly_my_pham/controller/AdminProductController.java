@@ -38,7 +38,7 @@ public class AdminProductController {
         addFormOptions(model);
         model.addAttribute("product", null);
         model.addAttribute("actionUrl", "/admin/products");
-        model.addAttribute("pageTitle", "Them san pham");
+        model.addAttribute("pageTitle", "Thêm sản phẩm");
         return "admin/product-form";
     }
 
@@ -61,7 +61,7 @@ public class AdminProductController {
                 toForm(categoryId, brandId, name, price, salePrice, stockQuantity, description, featured, active),
                 imageFile
             );
-            redirectAttributes.addFlashAttribute("successMessage", "Da them san pham " + product.getName());
+            redirectAttributes.addFlashAttribute("successMessage", "Đã thêm sản phẩm " + product.getName());
             return "redirect:/admin/products";
         } catch (BusinessException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
@@ -74,7 +74,7 @@ public class AdminProductController {
         addFormOptions(model);
         model.addAttribute("product", productService.findById(id));
         model.addAttribute("actionUrl", "/admin/products/" + id);
-        model.addAttribute("pageTitle", "Sua san pham");
+        model.addAttribute("pageTitle", "Sửa sản phẩm");
         return "admin/product-form";
     }
 
@@ -99,7 +99,7 @@ public class AdminProductController {
                 toForm(categoryId, brandId, name, price, salePrice, stockQuantity, description, featured, active),
                 imageFile
             );
-            redirectAttributes.addFlashAttribute("successMessage", "Da cap nhat san pham " + product.getName());
+            redirectAttributes.addFlashAttribute("successMessage", "Đã cập nhật sản phẩm " + product.getName());
         } catch (BusinessException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
             return "redirect:/admin/products/" + id + "/edit";
@@ -113,7 +113,7 @@ public class AdminProductController {
         Product product = productService.toggleActive(id);
         redirectAttributes.addFlashAttribute(
             "successMessage",
-            Boolean.TRUE.equals(product.getActive()) ? "Da mo ban san pham" : "Da tam an san pham"
+            Boolean.TRUE.equals(product.getActive()) ? "Đã mở bán sản phẩm" : "Đã tạm ẩn sản phẩm"
         );
         return "redirect:/admin/products";
     }
@@ -124,8 +124,8 @@ public class AdminProductController {
         redirectAttributes.addFlashAttribute(
             "successMessage",
             deleted
-                ? "Da xoa san pham"
-                : "San pham da co lich su don hang/danh gia nen he thong da tam an san pham"
+                ? "Đã xóa sản phẩm"
+                : "Sản phẩm đã có lịch sử đơn hàng/đánh giá nên hệ thống đã tạm ẩn sản phẩm"
         );
         return "redirect:/admin/products";
     }

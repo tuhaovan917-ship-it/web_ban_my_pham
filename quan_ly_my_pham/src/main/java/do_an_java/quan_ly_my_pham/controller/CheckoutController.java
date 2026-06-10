@@ -37,7 +37,7 @@ public class CheckoutController {
         User user = currentUser.requireUser(authentication);
         List<CartItem> items = cartService.getItems(user.getId());
         if (items.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Gio hang dang trong");
+            redirectAttributes.addFlashAttribute("errorMessage", "Giỏ hàng đang trống");
             return "redirect:/cart";
         }
 
@@ -75,7 +75,7 @@ public class CheckoutController {
 
         try {
             Order order = orderService.checkout(request);
-            redirectAttributes.addFlashAttribute("successMessage", "Dat hang thanh cong");
+            redirectAttributes.addFlashAttribute("successMessage", "Đặt hàng thành công");
             return "redirect:/orders/" + order.getId();
         } catch (BusinessException | NotFoundException exception) {
             redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());

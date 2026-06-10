@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Khong co quyen truy cap</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; background: #f7f7f7; }
-        main { max-width: 520px; margin: 0 auto; padding: 24px; background: #fff; border: 1px solid #ddd; }
-    </style>
-</head>
+<head th:replace="~{layout/fragments :: html_head('Không có quyền truy cập')}"></head>
 <body>
-<main>
-    <h1>403 Forbidden</h1>
-    <p>Ban khong co quyen truy cap trang nay.</p>
-    <p><a th:href="@{/products}">Quay lai danh sach san pham</a></p>
+<header th:replace="~{layout/fragments :: header('')}"></header>
+<main class="container">
+    <section class="admin-card" style="max-width: 640px; margin: 48px auto; text-align: center;">
+        <i class="fa-solid fa-shield-halved" style="font-size: 3rem; color: var(--primary);"></i>
+        <h1 style="margin-top: 16px;">Không có quyền truy cập</h1>
+        <p class="muted-text">Bạn không có quyền mở trang này.</p>
+        <a th:href="@{/products}" class="btn btn-primary">
+            <i class="fa-solid fa-arrow-left"></i> Quay lại danh sách sản phẩm
+        </a>
+    </section>
 </main>
+<footer th:replace="~{layout/fragments :: footer}"></footer>
 </body>
 </html>

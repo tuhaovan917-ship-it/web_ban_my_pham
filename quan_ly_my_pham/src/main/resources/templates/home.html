@@ -10,7 +10,7 @@
     <!-- Hero Banner cao cấp -->
     <section class="hero-section">
         <h1>Khám Phá Vẻ Đẹp Tự Nhiên Của Bạn</h1>
-        <p>Chào mừng đến với GlowCosmetics. Chúng tôi cung cấp các sản phẩm chăm sóc da và mỹ phẩm chính hãng hàng đầu, mang lại vẻ đẹp tự tin và tỏa sáng cho bạn mỗi ngày.</p>
+        <p>Chào mừng đến với Mỹ Phẩm Glow. Chúng tôi cung cấp các sản phẩm chăm sóc da và mỹ phẩm chính hãng hàng đầu, mang lại vẻ đẹp tự tin và tỏa sáng cho bạn mỗi ngày.</p>
         <div class="actions">
             <a th:href="@{/products}" class="btn btn-primary">
                 <i class="fa-solid fa-bag-shopping"></i> Mua sắm ngay
@@ -35,16 +35,16 @@
         <div class="product-grid" th:if="${!#lists.isEmpty(featuredProducts)}">
             <article class="product-card" th:each="product : ${featuredProducts}">
                 <!-- Badge giảm giá nếu có sale_price -->
-                <div class="product-badge-sale" th:if="${product.salePrice != null}">SALE</div>
+                <div class="product-badge-sale" th:if="${product.salePrice != null}">Giảm giá</div>
                 
                 <div class="product-image-container">
-                    <img class="product-image" th:if="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" th:src="@{${product.mainImagePath}}" alt="Product Image">
+                    <img class="product-image" th:if="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" th:src="@{${product.mainImagePath}}" alt="Ảnh sản phẩm">
                     <div class="product-image" th:unless="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" style="display: flex; align-items: center; justify-content: center; background: #e2e8f0; color: #94a3b8;">
                         <i class="fa-regular fa-image fa-3x"></i>
                     </div>
                 </div>
                 
-                <div class="product-brand" th:text="${product.brand != null ? product.brand.name : 'Cosmetics'}">Brand</div>
+                <div class="product-brand" th:text="${product.brand != null ? product.brand.name : 'Mỹ phẩm'}">Thương hiệu</div>
                 <h3 class="product-name">
                     <a th:href="@{/product/{id}(id=${product.id})}" th:text="${product.name}"></a>
                 </h3>
@@ -77,16 +77,16 @@
         
         <div class="product-grid" th:if="${!#lists.isEmpty(newestProducts)}">
             <article class="product-card" th:each="product : ${newestProducts}">
-                <div class="product-badge-sale" th:if="${product.salePrice != null}">SALE</div>
+                <div class="product-badge-sale" th:if="${product.salePrice != null}">Giảm giá</div>
                 
                 <div class="product-image-container">
-                    <img class="product-image" th:if="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" th:src="@{${product.mainImagePath}}" alt="Product Image">
+                    <img class="product-image" th:if="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" th:src="@{${product.mainImagePath}}" alt="Ảnh sản phẩm">
                     <div class="product-image" th:unless="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" style="display: flex; align-items: center; justify-content: center; background: #e2e8f0; color: #94a3b8;">
                         <i class="fa-regular fa-image fa-3x"></i>
                     </div>
                 </div>
                 
-                <div class="product-brand" th:text="${product.brand != null ? product.brand.name : 'Cosmetics'}">Brand</div>
+                <div class="product-brand" th:text="${product.brand != null ? product.brand.name : 'Mỹ phẩm'}">Thương hiệu</div>
                 <h3 class="product-name">
                     <a th:href="@{/product/{id}(id=${product.id})}" th:text="${product.name}"></a>
                 </h3>

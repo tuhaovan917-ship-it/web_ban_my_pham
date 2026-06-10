@@ -29,7 +29,7 @@ public class Cart {
     @Column(name = "cart_id")
     private Integer id;
 
-    @NotNull(message = "Gio hang phai thuoc ve mot nguoi dung")
+    @NotNull(message = "Giỏ hàng phải thuộc về một người dùng")
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     @ToString.Exclude

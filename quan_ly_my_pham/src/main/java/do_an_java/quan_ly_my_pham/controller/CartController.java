@@ -36,7 +36,7 @@ public class CartController {
         User user = currentUser.requireUser(authentication);
         try {
             cartService.addItem(user.getId(), productId, quantity);
-            redirectAttributes.addFlashAttribute("successMessage", "Da them san pham vao gio hang");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã thêm sản phẩm vào giỏ hàng");
         } catch (BusinessException | NotFoundException exception) {
             redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
         }
@@ -53,7 +53,7 @@ public class CartController {
         User user = currentUser.requireUser(authentication);
         try {
             cartService.updateQuantity(user.getId(), productId, quantity);
-            redirectAttributes.addFlashAttribute("successMessage", "Da cap nhat gio hang");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã cập nhật giỏ hàng");
         } catch (BusinessException | NotFoundException exception) {
             redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
         }
@@ -68,7 +68,7 @@ public class CartController {
     ) {
         User user = currentUser.requireUser(authentication);
         cartService.removeItem(user.getId(), productId);
-        redirectAttributes.addFlashAttribute("successMessage", "Da xoa san pham khoi gio hang");
+        redirectAttributes.addFlashAttribute("successMessage", "Đã xóa sản phẩm khỏi giỏ hàng");
         return "redirect:/cart";
     }
 }

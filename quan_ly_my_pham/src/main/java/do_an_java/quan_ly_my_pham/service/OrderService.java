@@ -61,7 +61,7 @@ public class OrderService {
 
     public Order findById(Integer orderId) {
         return orderRepository.findById(orderId)
-            .orElseThrow(() -> new NotFoundException("Khong tim thay don hang"));
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy đơn hàng"));
     }
 
     @Transactional
@@ -69,14 +69,14 @@ public class OrderService {
         validateCheckoutRequest(request);
 
         User user = userRepository.findById(request.userId())
-            .orElseThrow(() -> new NotFoundException("Khong tim thay nguoi dung"));
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng"));
         if (!Boolean.TRUE.equals(user.getActive())) {
-            throw new BusinessException("Tai khoan dang bi khoa");
+            throw new BusinessException("Tài khoản đang bị khóa");
         }
 
         List<CartItem> items = cartService.getItems(request.userId());
         if (items.isEmpty()) {
-            throw new BusinessException("Gio hang dang trong");
+            throw new BusinessException("Giỏ hàng đang trống");
         }
 
         List<Product> productsToUpdate = new ArrayList<>();
@@ -91,7 +91,7 @@ public class OrderService {
         PromotionDiscount discount = promotionService.calculateDiscount(request.promotionCode(), subtotal);
         BigDecimal shippingFee = request.shippingFee() == null ? BigDecimal.ZERO : request.shippingFee();
         if (shippingFee.compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Phi giao hang khong duoc am");
+            throw new BusinessException("Phí giao hàng không được âm");
         }
 
         BigDecimal total = subtotal.subtract(discount.amount()).add(shippingFee);
@@ -154,13 +154,13 @@ public class OrderService {
         OrderStatus oldStatus = order.getStatus();
 
         if (!ALLOWED_TRANSITIONS.getOrDefault(oldStatus, Set.of()).contains(newStatus)) {
-            throw new BusinessException("Khong the chuyen trang thai don hang tu " + oldStatus + " sang " + newStatus);
+            throw new BusinessException("Không thể chuyển trạng thái đơn hàng từ " + oldStatus.getDisplayName() + " sang " + newStatus.getDisplayName());
         }
 
         User changedBy = null;
         if (changedByUserId != null) {
             changedBy = userRepository.findById(changedByUserId)
-                .orElseThrow(() -> new NotFoundException("Khong tim thay nguoi cap nhat"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy người cập nhật"));
         }
 
         if (newStatus == OrderStatus.CANCELLED && oldStatus != OrderStatus.CANCELLED) {
@@ -179,11 +179,11 @@ public class OrderService {
     public Order cancelByCustomer(Integer orderId, Integer userId) {
         Order order = findById(orderId);
         if (!order.getUser().getId().equals(userId)) {
-            throw new BusinessException("Ban khong co quyen huy don hang nay");
+            throw new BusinessException("Bạn không có quyền hủy đơn hàng này");
         }
 
         if (order.getStatus() != OrderStatus.PENDING_CONFIRMATION && order.getStatus() != OrderStatus.PAYMENT_IN_PROGRESS) {
-            throw new BusinessException("Chi co the huy don khi don hang dang cho xac nhan");
+            throw new BusinessException("Chỉ có thể hủy đơn khi đơn hàng đang chờ xác nhận");
         }
 
         return updateStatus(orderId, OrderStatus.CANCELLED, userId, "Khach hang huy don");
@@ -217,19 +217,19 @@ public class OrderService {
 
     private void validateCheckoutRequest(CheckoutRequest request) {
         if (request.userId() == null) {
-            throw new BusinessException("Nguoi dung khong duoc de trong");
+            throw new BusinessException("Người dùng không được để trống");
         }
         if (request.receiverName() == null || request.receiverName().isBlank()) {
-            throw new BusinessException("Ten nguoi nhan khong duoc de trong");
+            throw new BusinessException("Tên người nhận không được để trống");
         }
         if (request.receiverPhone() == null || !request.receiverPhone().trim().matches("^0[0-9]{9}$")) {
-            throw new BusinessException("So dien thoai nguoi nhan phai gom 10 chu so va bat dau bang 0");
+            throw new BusinessException("Số điện thoại người nhận phải gồm 10 chữ số và bắt đầu bằng 0");
         }
         if (request.shippingAddress() == null || request.shippingAddress().isBlank()) {
-            throw new BusinessException("Dia chi giao hang khong duoc de trong");
+            throw new BusinessException("Địa chỉ giao hàng không được để trống");
         }
         if (request.paymentMethod() == null) {
-            throw new BusinessException("Phuong thuc thanh toan khong duoc de trong");
+            throw new BusinessException("Phương thức thanh toán không được để trống");
         }
     }
 }

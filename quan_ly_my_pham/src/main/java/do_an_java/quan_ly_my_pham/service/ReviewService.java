@@ -60,27 +60,27 @@ public class ReviewService {
         validateReviewInput(stars, comment);
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new NotFoundException("Khong tim thay nguoi dung"));
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng"));
         Order order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new NotFoundException("Khong tim thay don hang"));
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy đơn hàng"));
         Product product = productRepository.findById(productId)
-            .orElseThrow(() -> new NotFoundException("Khong tim thay san pham"));
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm"));
 
         if (!order.getUser().getId().equals(userId)) {
-            throw new BusinessException("Ban khong co quyen danh gia don hang nay");
+            throw new BusinessException("Bạn không có quyền đánh giá đơn hàng này");
         }
         if (order.getStatus() != OrderStatus.COMPLETED) {
-            throw new BusinessException("Chi co the danh gia khi don hang da hoan thanh");
+            throw new BusinessException("Chỉ có thể đánh giá khi đơn hàng đã hoàn thành");
         }
 
         boolean productInOrder = order.getOrderDetails().stream()
             .anyMatch(detail -> detail.getProduct().getId().equals(productId));
         if (!productInOrder) {
-            throw new BusinessException("San pham khong thuoc don hang nay");
+            throw new BusinessException("Sản phẩm không thuộc đơn hàng này");
         }
 
         if (reviewRepository.existsByUserIdAndOrderIdAndProductId(userId, orderId, productId)) {
-            throw new BusinessException("Ban da danh gia san pham nay trong don hang nay");
+            throw new BusinessException("Bạn đã đánh giá sản phẩm này trong đơn hàng này");
         }
 
         Review review = new Review();
@@ -97,7 +97,7 @@ public class ReviewService {
     @Transactional
     public Review updateStatus(Integer reviewId, ReviewStatus status) {
         Review review = reviewRepository.findById(reviewId)
-            .orElseThrow(() -> new NotFoundException("Khong tim thay danh gia"));
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy đánh giá"));
         review.setStatus(status);
         review.setUpdatedAt(LocalDateTime.now());
         return reviewRepository.save(review);
@@ -106,17 +106,17 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Integer reviewId) {
         if (!reviewRepository.existsById(reviewId)) {
-            throw new NotFoundException("Khong tim thay danh gia");
+            throw new NotFoundException("Không tìm thấy đánh giá");
         }
         reviewRepository.deleteById(reviewId);
     }
 
     private void validateReviewInput(Integer stars, String comment) {
         if (stars == null || stars < 1 || stars > 5) {
-            throw new BusinessException("So sao phai tu 1 den 5");
+            throw new BusinessException("Số sao phải từ 1 đến 5");
         }
         if (comment != null && comment.length() > 500) {
-            throw new BusinessException("Binh luan toi da 500 ky tu");
+            throw new BusinessException("Bình luận tối đa 500 ký tự");
         }
     }
 }

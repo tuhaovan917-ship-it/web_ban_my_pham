@@ -2,26 +2,18 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{layout/fragments :: html_head('Quản lý danh mục')}"></head>
 <body>
-
 <div class="admin-layout">
-    <!-- Sidebar dùng chung (activePage = 'categories') -->
     <aside th:replace="~{layout/fragments :: admin_sidebar('categories')}"></aside>
-    
+
     <div class="admin-main">
-        <!-- Top navbar của admin -->
         <header class="admin-navbar">
             <span style="font-weight: 700; color: var(--text-main); font-size: 1.1rem;">
                 <i class="fa-solid fa-folder-open" style="color: var(--primary); margin-right: 8px;"></i>QUẢN LÝ DANH MỤC
             </span>
-            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
-                GlowCosmetics &bull; Admin Panel
-            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Mỹ Phẩm Glow &bull; Trang quản trị</div>
         </header>
-        
-        <!-- Content chính -->
+
         <main class="admin-container">
-            
-            <!-- Alert Messages -->
             <div class="alert alert-success" th:if="${successMessage}">
                 <i class="fa-solid fa-circle-check"></i>
                 <span th:text="${successMessage}"></span>
@@ -31,10 +23,11 @@
                 <span th:text="${errorMessage}"></span>
             </div>
 
-            <!-- Card danh sách danh mục -->
             <section class="admin-card">
                 <div class="admin-section-header">
-                    <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--dark); margin: 0;">Danh mục sản phẩm</h2>
+                    <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--dark); margin: 0;">
+                        <i class="fa-solid fa-layer-group" style="color: var(--primary);"></i> Danh mục sản phẩm
+                    </h2>
                     <a class="btn btn-primary" th:href="@{/admin/categories/new}">
                         <i class="fa-solid fa-plus"></i> Thêm danh mục
                     </a>
@@ -52,11 +45,11 @@
                         </thead>
                         <tbody>
                         <tr th:each="category : ${categories}">
-                            <td th:text="${category.name}" style="font-weight: 700; color: var(--dark);">Tên danh mục</td>
-                            <td th:text="${category.description != null ? category.description : ''}">Mô tả</td>
+                            <td th:text="${category.name}" style="font-weight: 700; color: var(--dark);"></td>
+                            <td th:text="${category.description != null ? category.description : ''}"></td>
                             <td style="text-align: center;">
-                                <span class="badge" th:classappend="${category.active} ? 'badge-completed' : 'badge-cancelled'" 
-                                      th:text="${category.active} ? 'Đang dùng' : 'Tạm ẩn'">Trạng thái</span>
+                                <span class="badge" th:classappend="${category.active} ? 'badge-completed' : 'badge-cancelled'"
+                                      th:text="${category.active} ? 'Đang dùng' : 'Tạm ẩn'"></span>
                             </td>
                             <td style="text-align: center;">
                                 <div style="display: flex; gap: 8px; justify-content: center;">
@@ -82,6 +75,5 @@
         </main>
     </div>
 </div>
-
 </body>
 </html>

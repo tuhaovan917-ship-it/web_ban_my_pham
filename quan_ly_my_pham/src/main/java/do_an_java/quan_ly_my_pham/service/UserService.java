@@ -24,14 +24,14 @@ public class UserService {
 
     public User findById(Integer userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> new NotFoundException("Khong tim thay nguoi dung"));
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng"));
     }
 
     @Transactional
     public User lockUser(Integer userId) {
         User user = findById(userId);
         if (user.getRole() == UserRole.ADMIN) {
-            throw new BusinessException("Khong the khoa tai khoan quan tri vien");
+            throw new BusinessException("Không thể khóa tài khoản quản trị viên");
         }
 
         user.setActive(false);
