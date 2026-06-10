@@ -3,18 +3,15 @@
 <head th:replace="~{layout/fragments :: html_head(${product.name})}"></head>
 <body>
 
-<!-- Header dùng chung -->
 <header th:replace="~{layout/fragments :: header('products')}"></header>
 
 <main class="container">
-    <!-- Breadcrumb -->
     <div style="margin-bottom: 20px; font-size: 0.9rem;">
-        <a th:href="@{/}">Trang chủ</a> &gt; 
-        <a th:href="@{/products}">Sản phẩm</a> &gt; 
+        <a th:href="@{/}">Trang chủ</a> &gt;
+        <a th:href="@{/products}">Sản phẩm</a> &gt;
         <span th:text="${product.name}" style="color: var(--text-muted);">Tên sản phẩm</span>
     </div>
 
-    <!-- Alert Messages -->
     <div class="alert alert-success" th:if="${successMessage}">
         <i class="fa-solid fa-circle-check"></i>
         <span th:text="${successMessage}"></span>
@@ -24,9 +21,7 @@
         <span th:text="${errorMessage}"></span>
     </div>
 
-    <!-- Chi tiết sản phẩm -->
     <section class="admin-card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 40px; padding: 30px;">
-        <!-- Cột trái: Ảnh sản phẩm -->
         <div style="background: #f8fafc; border-radius: var(--radius-md); padding: 20px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);">
             <div style="width: 100%; aspect-ratio: 1; overflow: hidden; border-radius: var(--radius-sm);">
                 <img th:if="${product.mainImagePath != null && !product.mainImagePath.isBlank()}" th:src="@{${product.mainImagePath}}" alt="Ảnh sản phẩm" style="width: 100%; height: 100%; object-fit: cover;">
@@ -36,60 +31,67 @@
             </div>
         </div>
 
-        <!-- Cột phải: Thông tin sản phẩm -->
         <div style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <!-- Danh mục & Thương hiệu -->
-                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
                     <span class="btn btn-outline" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 999px; pointer-events: none;" th:text="${product.category.name}">Danh mục</span>
                     <span class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 999px; pointer-events: none;" th:text="${product.brand != null ? product.brand.name : 'Chính hãng'}">Thương hiệu</span>
                 </div>
-                
+
                 <h1 th:text="${product.name}" style="font-size: 2.2rem; font-weight: 800; color: var(--dark); margin-bottom: 16px;"></h1>
-                
-                <!-- Giá sản phẩm -->
-                <div style="background-color: var(--primary-light); padding: 16px 24px; border-radius: var(--radius-md); margin-bottom: 24px; display: flex; align-items: center; gap: 14px;">
+
+                <div style="background-color: var(--primary-light); padding: 16px 24px; border-radius: var(--radius-md); margin-bottom: 24px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
                     <span class="price" style="color: var(--primary-dark); font-size: 2rem; font-weight: 800;" th:text="${#numbers.formatDecimal(currentPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
                     <span class="old-price" th:if="${product.salePrice != null}" style="text-decoration: line-through; color: var(--text-muted); font-size: 1.1rem;" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
                     <span th:if="${product.salePrice != null}" class="btn btn-danger" style="padding: 2px 8px; font-size: 0.75rem; border-radius: 4px; pointer-events: none;">Khuyến mãi</span>
                 </div>
 
-                <!-- Tình trạng kho -->
                 <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
                     <i class="fa-solid" th:classappend="${product.stockQuantity > 0} ? 'fa-circle-check' : 'fa-circle-xmark'" th:style="${product.stockQuantity > 0} ? 'color: var(--success)' : 'color: var(--error)'"></i>
                     <span th:text="${product.stockQuantity > 0} ? 'Tình trạng: Còn hàng (' + ${product.stockQuantity} + ' sản phẩm)' : 'Tình trạng: Tạm hết hàng'" style="font-weight: 500;"></span>
                 </div>
 
-                <!-- Mô tả sản phẩm -->
                 <div style="margin-bottom: 30px;">
                     <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--dark); margin-bottom: 8px;">Mô tả sản phẩm:</h3>
                     <p th:text="${product.description}" style="color: var(--text-main); white-space: pre-line; line-height: 1.7; font-size: 0.95rem;"></p>
                 </div>
             </div>
 
-            <!-- Form thêm giỏ hàng -->
-            <form th:action="@{/cart/add}" method="post" style="border-top: 1px solid var(--border); padding-top: 24px;">
-                <input type="hidden" name="productId" th:value="${product.id}">
-                <div style="display: flex; gap: 12px; align-items: center;">
-                    <span style="font-weight: 600; font-size: 0.9rem;">Số lượng:</span>
-                    <input class="form-control" type="number" name="quantity" value="1" min="1" th:max="${product.stockQuantity}" style="width: 80px; text-align: center;" th:disabled="${product.stockQuantity <= 0}">
-                    
-                    <button type="submit" class="btn btn-primary" style="flex-grow: 1; padding: 12px 24px;" th:disabled="${product.stockQuantity <= 0}">
-                        <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
-                    </button>
+            <div style="border-top: 1px solid var(--border); padding-top: 24px;">
+                <form th:if="${currentUser != null && currentUser.role.name() == 'CUSTOMER'}" th:action="@{/cart/add}" method="post">
+                    <input type="hidden" name="productId" th:value="${product.id}">
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <span style="font-weight: 600; font-size: 0.9rem;">Số lượng:</span>
+                        <input class="form-control" type="number" name="quantity" value="1" min="1" th:max="${product.stockQuantity}" style="width: 80px; text-align: center;" th:disabled="${product.stockQuantity <= 0}">
+
+                        <button type="submit" class="btn btn-primary" style="flex-grow: 1; padding: 12px 24px;" th:disabled="${product.stockQuantity <= 0}">
+                            <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
+                        </button>
+                    </div>
+                </form>
+
+                <div th:if="${currentUser == null}" class="alert alert-secondary" style="background:#f8fafc; border-color:#e2e8f0; color:var(--text-muted); margin: 0;">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Vui lòng đăng nhập bằng tài khoản khách hàng để mua sản phẩm.</span>
+                    <a th:href="@{/login}" class="btn btn-primary" style="margin-left: auto;">Đăng nhập</a>
                 </div>
-            </form>
+
+                <div th:if="${currentUser != null && currentUser.role.name() == 'ADMIN'}" class="alert alert-secondary" style="background:#f8fafc; border-color:#e2e8f0; color:var(--text-muted); margin: 0;">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Quản trị viên đang xem trước sản phẩm, không sử dụng chức năng mua hàng.</span>
+                    <a th:href="@{/admin/products}" class="btn btn-outline" style="margin-left: auto;">Quản lý sản phẩm</a>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- Section Đánh giá -->
     <section class="admin-card" style="margin-top: 30px;">
         <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--dark); margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px;">
             <i class="fa-solid fa-star-half-stroke" style="color: var(--primary);"></i> Khách hàng đánh giá
         </h2>
-        
+
         <p th:if="${#lists.isEmpty(reviews)}" class="alert alert-secondary" style="background:#f8fafc; border-color:#e2e8f0; color:var(--text-muted)">Chưa có đánh giá nào cho sản phẩm này.</p>
-        
+
         <div th:if="${!#lists.isEmpty(reviews)}" style="display: flex; flex-direction: column; gap: 20px;">
             <article th:each="r : ${reviews}" style="border-bottom: 1px solid var(--border); padding-bottom: 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -97,7 +99,6 @@
                         <i class="fa-regular fa-user" style="margin-right: 6px;"></i>
                         <span th:text="${r.user.fullName}">Khách hàng</span>
                     </span>
-                    <!-- Vẽ sao động -->
                     <span style="color: var(--warning); font-size: 0.9rem;">
                         <i class="fa-solid fa-star" th:each="i : ${#numbers.sequence(1, r.stars)}"></i><i class="fa-regular fa-star" th:each="i : ${r.stars < 5 ? #numbers.sequence(r.stars + 1, 5) : {}}"></i>
                     </span>
@@ -109,7 +110,6 @@
     </section>
 </main>
 
-<!-- Footer dùng chung -->
 <footer th:replace="~{layout/fragments :: footer}"></footer>
 
 </body>
